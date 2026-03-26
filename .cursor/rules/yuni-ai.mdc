@@ -1,0 +1,12 @@
+---
+description: Yuni AI — consignes projet (référence claude.md)
+alwaysApply: true
+---
+
+# Yuni AI
+
+Avant toute action sur ce dépôt (code, config, infra, sécurité), **lire et appliquer intégralement** le fichier projet :
+
+**[`.cursor/claude.md`](../claude.md)**
+
+Ce fichier définit identité, structure, environnements, sécurité, Stripe, stack, standards Python, Git, tests, anti-patterns, APIs Yunicity et checklist PR. En cas de conflit avec une demande ponctuelle, **signaler le risque** (sécurité, RGPD, webhooks) plutôt que de contourner ces règles silencieusement.

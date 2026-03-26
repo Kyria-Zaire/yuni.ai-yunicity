@@ -1,0 +1,74 @@
+{
+  "project": {
+    "name": "Yuni AI",
+    "version": "1.1.0",
+    "description": "Microservice IA hyperlocal pour Yunicity",
+    "language": "python",
+    "framework": "fastapi"
+  },
+  "behavior": {
+    "alwaysReadFiles": [".claude/claude.md"],
+    "confirmBeforeDelete": true,
+    "confirmBeforeOverwrite": true,
+    "autoRunTests": true,
+    "requireTestsBeforeCommit": true
+  },
+  "codingStandards": {
+    "style": "senior-developer",
+    "typing": "strict",
+    "maxFunctionLines": 40,
+    "requireDocstrings": true,
+    "requireTypeHints": true,
+    "asyncFirst": true,
+    "noHardcodedSecrets": true
+  },
+  "security": {
+    "enforceRateLimit": true,
+    "enforceJWT": true,
+    "enforceAnonymization": true,
+    "blockWebhooksInDev": true,
+    "requirePipAudit": true,
+    "noDirectDBAccess": true
+  },
+  "environments": {
+    "current": "dev",
+    "allowed": ["dev", "recette", "preprod", "prod"],
+    "webhookAllowed": ["prod"],
+    "realDataAllowed": ["prod"]
+  },
+  "testing": {
+    "framework": "pytest",
+    "minCoverage": 80,
+    "requireUnitTests": true,
+    "requireIntegrationTests": true,
+    "mockExternalAPIs": true
+  },
+  "linting": {
+    "tools": ["ruff", "mypy", "pip-audit"],
+    "mypyStrict": true,
+    "blockOnCVE": "critical"
+  },
+  "git": {
+    "branchNaming": "{type}/YAI-{id}-{description}",
+    "commitConvention": "conventional-commits",
+    "protectedBranches": ["main", "preprod"],
+    "requireReview": true
+  },
+  "antiPatterns": [
+    "SELECT * direct DB access",
+    "hardcoded secrets",
+    "bare except clauses",
+    "sync code in async context",
+    "missing input validation",
+    "logging PII data",
+    "active webhooks in dev/recette",
+    "missing error handling on external API calls"
+  ],
+  "skills": {
+    "constructeur-ui": ".cursor/rules/constructeur-ui.md",
+    "architecte-api": ".cursor/rules/architecte-api.md",
+    "ingenieur": ".cursor/rules/ingenieur.md",
+    "reviewer-securite": ".cursor/rules/reviewer-securite-code.md",
+    "createur-workflow": ".cursor/rules/createur-workflow.md"
+  }
+}

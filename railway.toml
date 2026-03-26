@@ -1,0 +1,28 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "infra/docker/Dockerfile"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "on-failure"
+restartPolicyMaxRetries = 3
+
+[environments.dev]
+YUNI_ENV = "dev"
+LOG_LEVEL = "debug"
+
+[environments.recette]
+YUNI_ENV = "recette"
+LOG_LEVEL = "info"
+
+[environments.preprod]
+YUNI_ENV = "preprod"
+LOG_LEVEL = "info"
+
+[environments.prod]
+YUNI_ENV = "prod"
+LOG_LEVEL = "warning"
+
+[environments.prod.deploy]
+numReplicas = 1
