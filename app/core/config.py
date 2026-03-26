@@ -41,8 +41,8 @@ class Settings(BaseSettings):
 
     # --- Security ---
     JWT_PUBLIC_KEY: str = ""
-    ALLOWED_HOSTS: list[str] = ["localhost", "127.0.0.1"]
-    CORS_ORIGINS: list[str] = ["http://localhost:3000"]
+    ALLOWED_HOSTS: str = "localhost,127.0.0.1"
+    CORS_ORIGINS: str = "http://localhost:3000"
     RATE_LIMIT_PER_MINUTE: int = 20
     ANONYMIZATION_SALT: SecretStr = SecretStr("change-me-in-prod")
 
@@ -64,6 +64,16 @@ class Settings(BaseSettings):
     def is_dev(self) -> bool:
         """True if running in local development."""
         return self.YUNI_ENV == "dev"
+
+    @property
+    def allowed_hosts_list(self) -> list[str]:
+        """Hosts parsed from ALLOWED_HOSTS CSV."""
+        return [host.strip() for host in self.ALLOWED_HOSTS.split(",") if host.strip()]
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        """Origins parsed from CORS_ORIGINS CSV."""
+        return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
 
 
 @lru_cache(maxsize=1)
