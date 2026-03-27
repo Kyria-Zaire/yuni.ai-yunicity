@@ -16,6 +16,9 @@
 | Geolocalisation | Tronquee a ~1km | 24h Redis (TTL) | Interet legitime |
 | Points citoyens | Bucket de 100 pts | 24h Redis (TTL) | Interet legitime |
 | Texte prompt IA | Non stocke | Temps de traitement | Interet legitime |
+| Donnees audio | Transite uniquement | 0s (jamais stocke) | Traitement vocal temps reel |
+| Texte transcrit (STT) | Transite uniquement | 0s (jamais stocke) | Commandes vocales |
+| Signalements citoyens | Transmis a Yunicity | Selon Yunicity | Interet legitime |
 
 ### Base legale
 - Consentement explicite (Article 6.1.a RGPD)
@@ -40,6 +43,15 @@
 | Railway | USA | A verifier (clauses SCCs) | Hebergement recette/prod |
 | Redis (Railway plugin) | USA | Couvert par Railway DPA | Cache applicatif |
 | Qdrant | Allemagne | A signer avant prod | Recherche vectorielle |
+| OpenAI Whisper | USA | A verifier DPA (zero data retention) | Transcription vocale STT |
+| Amazon Polly | EU-West-1 (Irlande) | DPA AWS standard | Synthese vocale TTS |
+
+### Note souverainete vocale
+
+> OpenAI propose une option "zero data retention" via l'API.
+> Verifier https://platform.openai.com/docs/guides/your-data-privacy
+> Si non disponible : basculer sur faster-whisper local (WHISPER_LOCAL=true)
+> pour 100% souverainete des donnees vocales.
 
 ### Mesures techniques
 
@@ -50,6 +62,9 @@
 - Chiffrement en transit (TLS) pour toutes les communications
 - Pas de stockage de donnees personnelles en clair
 - Logs filtres (PII masquees via structlog processor)
+- Audio et texte transcrit jamais stockes ni logues (pipeline vocal transient)
+- Option WHISPER_LOCAL=true pour souverainete totale (zero envoi externe)
+- TTS Amazon Polly en region EU-West-1 (Irlande) pour conformite RGPD
 
 ### Registre des demandes de suppression
 

@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     # --- Application ---
     YUNI_ENV: Literal["dev", "recette", "recette_mock", "preprod", "prod"] = "dev"
     APP_NAME: str = "yuni-ai"
-    APP_VERSION: str = "1.1.0"
+    APP_VERSION: str = "1.2.0"
     LOG_LEVEL: str = "info"
 
     # --- AI Providers ---
@@ -64,6 +64,17 @@ class Settings(BaseSettings):
     STRIPE_SECRET_KEY: SecretStr = SecretStr("sk_test_mock")
     STRIPE_WEBHOOK_SECRET: SecretStr = SecretStr("whsec_mock")
     STRIPE_PUBLISHABLE_KEY: str = "pk_test_mock"
+
+    # --- AWS (Polly TTS) ---
+    AWS_ACCESS_KEY_ID: SecretStr = SecretStr("")
+    AWS_SECRET_ACCESS_KEY: SecretStr = SecretStr("")
+    AWS_REGION: str = "eu-west-1"
+    TTS_VOICE_ID: str = "Lea"
+    TTS_CACHE_ENABLED: bool = True
+    TTS_MAX_CHARS: int = 3000
+
+    # --- Voice (STT Whisper) ---
+    WHISPER_LOCAL: bool = False
 
     @property
     def is_prod(self) -> bool:

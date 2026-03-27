@@ -22,7 +22,12 @@ class YuniAIMetrics:
         self.mistral_tokens_output: int = 0
         self.semantic_searches: int = 0
         self.semantic_fallbacks: int = 0
+        self.voice_turns: int = 0
+        self.stt_calls: int = 0
+        self.tts_calls: int = 0
+        self.tts_cache_hits: int = 0
         self._latencies: deque[float] = deque(maxlen=max_samples)
+        self._pipeline_latencies: deque[float] = deque(maxlen=max_samples)
 
     def record_cache_hit(self) -> None:
         with self._lock:
@@ -64,6 +69,26 @@ class YuniAIMetrics:
     def record_semantic_fallback(self) -> None:
         with self._lock:
             self.semantic_fallbacks += 1
+
+    def record_voice_turn(self) -> None:
+        with self._lock:
+            self.voice_turns += 1
+
+    def record_stt_call(self) -> None:
+        with self._lock:
+            self.stt_calls += 1
+
+    def record_tts_call(self) -> None:
+        with self._lock:
+            self.tts_calls += 1
+
+    def record_tts_cache_hit(self) -> None:
+        with self._lock:
+            self.tts_cache_hits += 1
+
+    def record_pipeline_latency(self, ms: float) -> None:
+        with self._lock:
+            self._pipeline_latencies.append(ms)
 
     def record_latency(self, ms: float) -> None:
         with self._lock:
@@ -118,6 +143,10 @@ class YuniAIMetrics:
             "not_eligible_requests": float(self.not_eligible_requests),
             "semantic_searches": float(self.semantic_searches),
             "semantic_fallbacks": float(self.semantic_fallbacks),
+            "voice_turns": float(self.voice_turns),
+            "stt_calls": float(self.stt_calls),
+            "tts_calls": float(self.tts_calls),
+            "tts_cache_hits": float(self.tts_cache_hits),
         }
 
 

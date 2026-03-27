@@ -27,16 +27,22 @@ from app.models.common import ProblemDetail
 from app.routers import chat as chat_router_mod
 from app.routers import dashboard as dashboard_router_mod
 from app.routers import health
+from app.routers import merchant as merchant_router_mod
+from app.routers import onboarding as onboarding_router_mod
 from app.routers import recommend as recommend_router_mod
+from app.routers import reports as reports_router_mod
 from app.routers import rgpd as rgpd_router_mod
 from app.routers import stripe_webhook as stripe_router_mod
 from app.routers import vitality as vitality_router_mod
+from app.routers import voice as voice_router_mod
 from app.services.embedding_service import EmbeddingService
 from app.services.mistral_service import MistralService
 from app.services.recommendation_service import RecommendationService
 from app.services.redis_service import RedisService, set_global_redis_service
 from app.services.rollout_service import RolloutService
 from app.services.semantic_search_service import SemanticSearchService
+from app.services.stt_service import STTService
+from app.services.tts_service import TTSService
 from app.services.vitality_service import VitalityIndexService
 
 logger = get_logger("main")
@@ -83,6 +89,43 @@ async def lifespan(application: FastAPI) -> AsyncGenerator[None, None]:
     application.state.yunicity_service = yunicity_service
     application.state.mistral_client = mistral_service._get_client()
     application.state.semantic_service = semantic_service
+
+    # Voice services (STT + TTS)
+    stt_service: STTService | None = None
+    tts_service: TTSService | None = None
+    try:
+        if settings.OPENAI_API_KEY:
+            from openai import AsyncOpenAI
+            openai_client = AsyncOpenAI(
+                api_key=settings.OPENAI_API_KEY.get_secret_value(),
+            )
+            stt_service = STTService(openai_client)
+            logger.info("stt_service_initialized")
+    except Exception as exc:
+        logger.warning("stt_init_failed", error=str(exc))
+
+    try:
+        aws_key = settings.AWS_ACCESS_KEY_ID.get_secret_value()
+        if aws_key:
+            import boto3
+            polly_client = boto3.client(
+                "polly",
+                aws_access_key_id=aws_key,
+                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY.get_secret_value(),
+                region_name=settings.AWS_REGION,
+            )
+            tts_service = TTSService(
+                polly_client=polly_client,
+                redis=redis_service,
+                voice_id=settings.TTS_VOICE_ID,
+                cache_enabled=settings.TTS_CACHE_ENABLED,
+            )
+            logger.info("tts_service_initialized")
+    except Exception as exc:
+        logger.warning("tts_init_failed", error=str(exc))
+
+    application.state.stt_service = stt_service
+    application.state.tts_service = tts_service
 
     logger.info(
         "application_starting",
@@ -239,6 +282,10 @@ def create_app() -> FastAPI:
     app.include_router(chat_router_mod.router)
     app.include_router(dashboard_router_mod.router)
     app.include_router(stripe_router_mod.router)
+    app.include_router(voice_router_mod.router)
+    app.include_router(reports_router_mod.router)
+    app.include_router(merchant_router_mod.router)
+    app.include_router(onboarding_router_mod.router)
 
     return app
 

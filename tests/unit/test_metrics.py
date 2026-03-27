@@ -103,6 +103,7 @@ class TestToDict:
             "error_rate", "p50_latency_ms", "p95_latency_ms",
             "estimated_cost_eur", "eligible_requests", "not_eligible_requests",
             "semantic_searches", "semantic_fallbacks",
+            "voice_turns", "stt_calls", "tts_calls", "tts_cache_hits",
         }
         assert set(d.keys()) == expected_keys
 
