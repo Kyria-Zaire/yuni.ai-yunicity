@@ -30,6 +30,9 @@ class YuniAIMetrics:
         self.badges_unlocked: int = 0
         self.quests_generated: int = 0
         self.quests_completed: int = 0
+        self.mistral_large_calls: int = 0
+        self.mistral_small_calls: int = 0
+        self.semantic_cache_hits: int = 0
         self._latencies: deque[float] = deque(maxlen=max_samples)
         self._pipeline_latencies: deque[float] = deque(maxlen=max_samples)
 
@@ -106,6 +109,18 @@ class YuniAIMetrics:
         with self._lock:
             self.quests_completed += 1
 
+    def record_mistral_large_call(self) -> None:
+        with self._lock:
+            self.mistral_large_calls += 1
+
+    def record_mistral_small_call(self) -> None:
+        with self._lock:
+            self.mistral_small_calls += 1
+
+    def record_semantic_cache_hit(self) -> None:
+        with self._lock:
+            self.semantic_cache_hits += 1
+
     def record_pipeline_latency(self, ms: float) -> None:
         with self._lock:
             self._pipeline_latencies.append(ms)
@@ -171,6 +186,9 @@ class YuniAIMetrics:
             "badges_unlocked": float(self.badges_unlocked),
             "quests_generated": float(self.quests_generated),
             "quests_completed": float(self.quests_completed),
+            "mistral_large_calls": float(self.mistral_large_calls),
+            "mistral_small_calls": float(self.mistral_small_calls),
+            "semantic_cache_hits": float(self.semantic_cache_hits),
         }
 
 

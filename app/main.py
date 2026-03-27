@@ -24,8 +24,11 @@ from app.core.exceptions import (
 from app.core.http_client import close_http_client, init_http_client
 from app.core.logging import configure_logging, get_logger
 from app.models.common import ProblemDetail
+from app.routers import admin as admin_router_mod
+from app.routers import budget as budget_router_mod
 from app.routers import chat as chat_router_mod
 from app.routers import cities as cities_router_mod
+from app.routers import civic as civic_router_mod
 from app.routers import dashboard as dashboard_router_mod
 from app.routers import gamification as gamification_router_mod
 from app.routers import health
@@ -40,10 +43,14 @@ from app.routers import sentiment as sentiment_router_mod
 from app.routers import stripe_webhook as stripe_router_mod
 from app.routers import vitality as vitality_router_mod
 from app.routers import voice as voice_router_mod
+from app.services.budget_tracker import BudgetTracker
 from app.services.city_registry_service import CityRegistryService
+from app.services.civic_export_service import CivicDataExportService
 from app.services.embedding_service import EmbeddingService
 from app.services.gamification_service import GamificationService
+from app.services.i18n_service import I18nService
 from app.services.leaderboard_service import LeaderboardService
+from app.services.mistral_router import MistralRouter
 from app.services.mistral_service import MistralService
 from app.services.notification_service import NotificationService
 from app.services.quest_service import QuestService
@@ -149,12 +156,24 @@ async def lifespan(application: FastAPI) -> AsyncGenerator[None, None]:
     )
     notification_service = NotificationService(redis=redis_service, settings=settings)
 
+    mistral_router = MistralRouter(redis_service)
+    budget_tracker = BudgetTracker(redis_service)
+    i18n_service = I18nService()
+    civic_export_service = CivicDataExportService(
+        city_registry=city_registry_service,
+        sentiment_svc=sentiment_service,
+    )
+
     application.state.gamification_service = gamification_service
     application.state.city_registry_service = city_registry_service
     application.state.leaderboard_service = leaderboard_service
     application.state.quest_service = quest_service
     application.state.sentiment_service = sentiment_service
     application.state.notification_service = notification_service
+    application.state.mistral_router = mistral_router
+    application.state.budget_tracker = budget_tracker
+    application.state.i18n_service = i18n_service
+    application.state.civic_export_service = civic_export_service
     application.state.settings = settings
 
     logger.info(
@@ -321,6 +340,9 @@ def create_app() -> FastAPI:
     app.include_router(leaderboard_router_mod.router)
     app.include_router(cities_router_mod.router)
     app.include_router(sentiment_router_mod.router)
+    app.include_router(budget_router_mod.router)
+    app.include_router(civic_router_mod.router)
+    app.include_router(admin_router_mod.router)
 
     return app
 

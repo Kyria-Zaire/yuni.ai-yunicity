@@ -106,6 +106,8 @@ class TestToDict:
             "voice_turns", "stt_calls", "tts_calls", "tts_cache_hits",
             "xp_awarded", "badges_unlocked",
             "quests_generated", "quests_completed",
+            "mistral_large_calls", "mistral_small_calls",
+            "semantic_cache_hits",
         }
         assert set(d.keys()) == expected_keys
 
