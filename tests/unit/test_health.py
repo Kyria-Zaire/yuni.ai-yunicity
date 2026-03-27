@@ -21,7 +21,7 @@ async def test_health_includes_environment(client: AsyncClient) -> None:
 async def test_health_includes_version(client: AsyncClient) -> None:
     response = await client.get("/health")
     data = response.json()
-    assert data["version"] == "1.4.0"
+    assert data["version"] == "2.0.0"
 
 
 @pytest.mark.asyncio

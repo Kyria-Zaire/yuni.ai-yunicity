@@ -30,11 +30,14 @@ from app.routers import chat as chat_router_mod
 from app.routers import cities as cities_router_mod
 from app.routers import civic as civic_router_mod
 from app.routers import dashboard as dashboard_router_mod
+from app.routers import federation as federation_router_mod
 from app.routers import gamification as gamification_router_mod
 from app.routers import health
 from app.routers import leaderboard as leaderboard_router_mod
 from app.routers import merchant as merchant_router_mod
 from app.routers import onboarding as onboarding_router_mod
+from app.routers import partner as partner_router_mod
+from app.routers import predictive as predictive_router_mod
 from app.routers import quests as quests_router_mod
 from app.routers import recommend as recommend_router_mod
 from app.routers import reports as reports_router_mod
@@ -45,14 +48,18 @@ from app.routers import vitality as vitality_router_mod
 from app.routers import voice as voice_router_mod
 from app.services.budget_tracker import BudgetTracker
 from app.services.city_registry_service import CityRegistryService
+from app.services.civic_blackbox_service import CivicBlackboxService
 from app.services.civic_export_service import CivicDataExportService
 from app.services.embedding_service import EmbeddingService
+from app.services.federation_service import FederationService
 from app.services.gamification_service import GamificationService
 from app.services.i18n_service import I18nService
 from app.services.leaderboard_service import LeaderboardService
 from app.services.mistral_router import MistralRouter
 from app.services.mistral_service import MistralService
 from app.services.notification_service import NotificationService
+from app.services.partner_auth_service import PartnerAuthService
+from app.services.predictive_service import PredictiveService
 from app.services.quest_service import QuestService
 from app.services.recommendation_service import RecommendationService
 from app.services.redis_service import RedisService, set_global_redis_service
@@ -170,10 +177,23 @@ async def lifespan(application: FastAPI) -> AsyncGenerator[None, None]:
     application.state.quest_service = quest_service
     application.state.sentiment_service = sentiment_service
     application.state.notification_service = notification_service
+    civic_blackbox_service = CivicBlackboxService(redis_service)
+    federation_svc = FederationService(redis_service)
+    partner_auth_svc = PartnerAuthService(redis_service)
+    predictive_svc = PredictiveService(
+        mistral_router=mistral_router,
+        redis=redis_service,
+        client=mistral_service._get_client(),
+    )
+
     application.state.mistral_router = mistral_router
     application.state.budget_tracker = budget_tracker
     application.state.i18n_service = i18n_service
     application.state.civic_export_service = civic_export_service
+    application.state.civic_blackbox_service = civic_blackbox_service
+    application.state.federation_service = federation_svc
+    application.state.partner_auth_service = partner_auth_svc
+    application.state.predictive_service = predictive_svc
     application.state.settings = settings
 
     logger.info(
@@ -343,6 +363,9 @@ def create_app() -> FastAPI:
     app.include_router(budget_router_mod.router)
     app.include_router(civic_router_mod.router)
     app.include_router(admin_router_mod.router)
+    app.include_router(federation_router_mod.router)
+    app.include_router(predictive_router_mod.router)
+    app.include_router(partner_router_mod.router)
 
     return app
 

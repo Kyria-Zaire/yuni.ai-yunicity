@@ -108,6 +108,8 @@ class TestToDict:
             "quests_generated", "quests_completed",
             "mistral_large_calls", "mistral_small_calls",
             "semantic_cache_hits",
+            "blackbox_records", "partner_requests",
+            "federation_queries",
         }
         assert set(d.keys()) == expected_keys
 

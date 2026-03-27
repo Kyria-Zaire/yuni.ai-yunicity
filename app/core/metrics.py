@@ -33,6 +33,9 @@ class YuniAIMetrics:
         self.mistral_large_calls: int = 0
         self.mistral_small_calls: int = 0
         self.semantic_cache_hits: int = 0
+        self.blackbox_records: int = 0
+        self.partner_requests: int = 0
+        self.federation_queries: int = 0
         self._latencies: deque[float] = deque(maxlen=max_samples)
         self._pipeline_latencies: deque[float] = deque(maxlen=max_samples)
 
@@ -121,6 +124,18 @@ class YuniAIMetrics:
         with self._lock:
             self.semantic_cache_hits += 1
 
+    def record_blackbox_entry(self) -> None:
+        with self._lock:
+            self.blackbox_records += 1
+
+    def record_partner_request(self) -> None:
+        with self._lock:
+            self.partner_requests += 1
+
+    def record_federation_query(self) -> None:
+        with self._lock:
+            self.federation_queries += 1
+
     def record_pipeline_latency(self, ms: float) -> None:
         with self._lock:
             self._pipeline_latencies.append(ms)
@@ -189,6 +204,9 @@ class YuniAIMetrics:
             "mistral_large_calls": float(self.mistral_large_calls),
             "mistral_small_calls": float(self.mistral_small_calls),
             "semantic_cache_hits": float(self.semantic_cache_hits),
+            "blackbox_records": float(self.blackbox_records),
+            "partner_requests": float(self.partner_requests),
+            "federation_queries": float(self.federation_queries),
         }
 
 
