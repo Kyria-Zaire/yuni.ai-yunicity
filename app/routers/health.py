@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 from fastapi import APIRouter, Request, Response
 from fastapi.responses import JSONResponse
@@ -12,15 +13,24 @@ from app.core.logging import get_logger
 from app.core.metrics import metrics
 from app.services.redis_service import RedisService
 
+if TYPE_CHECKING:
+    from app.services.embedding_service import EmbeddingService
+
 router = APIRouter(tags=["health"])
 logger = get_logger("health")
 
 _redis_service: RedisService | None = None
+_embedding_service: EmbeddingService | None = None
 
 
 def set_redis_service(service: RedisService) -> None:
     global _redis_service
     _redis_service = service
+
+
+def set_embedding_service(service: EmbeddingService) -> None:
+    global _embedding_service
+    _embedding_service = service
 
 
 async def _check_redis() -> str:
@@ -34,10 +44,17 @@ async def _check_redis() -> str:
         return "disconnected"
 
 
+def _check_qdrant() -> str:
+    if _embedding_service is None:
+        return "not_configured"
+    return "connected" if _embedding_service.check_health() else "disconnected"
+
+
 @router.get("/health")
 async def health() -> dict[str, object]:
     settings = get_settings()
     redis_status = await _check_redis()
+    qdrant_status = _check_qdrant()
     metrics_data = metrics.to_dict()
     metrics_data["rollout_percentage"] = float(settings.ROLLOUT_PERCENTAGE)
     return {
@@ -47,6 +64,7 @@ async def health() -> dict[str, object]:
         "timestamp": datetime.now(UTC).isoformat(),
         "services": {
             "redis": redis_status,
+            "qdrant": qdrant_status,
             "mistral": "available",
         },
         "metrics": metrics_data,

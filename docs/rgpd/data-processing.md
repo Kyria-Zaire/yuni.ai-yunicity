@@ -39,6 +39,7 @@
 | Mistral AI | France | A signer avant prod | Generation recommandations |
 | Railway | USA | A verifier (clauses SCCs) | Hebergement recette/prod |
 | Redis (Railway plugin) | USA | Couvert par Railway DPA | Cache applicatif |
+| Qdrant | Allemagne | A signer avant prod | Recherche vectorielle |
 
 ### Mesures techniques
 

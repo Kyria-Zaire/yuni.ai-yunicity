@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     # --- Application ---
     YUNI_ENV: Literal["dev", "recette", "recette_mock", "preprod", "prod"] = "dev"
     APP_NAME: str = "yuni-ai"
-    APP_VERSION: str = "0.2.0"
+    APP_VERSION: str = "0.3.0"
     LOG_LEVEL: str = "info"
 
     # --- AI Providers ---
@@ -45,6 +45,10 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = "http://localhost:3000"
     RATE_LIMIT_PER_MINUTE: int = 20
     ANONYMIZATION_SALT: SecretStr = SecretStr("change-me-in-prod")
+
+    # --- Qdrant ---
+    QDRANT_URL: str = "http://localhost:6333"
+    QDRANT_API_KEY: SecretStr | None = None
 
     # --- Yunicity APIs ---
     YUNICITY_API_BASE_URL: str = "http://localhost:4000"

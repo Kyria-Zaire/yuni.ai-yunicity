@@ -26,10 +26,14 @@ from app.models.common import ProblemDetail
 from app.routers import health
 from app.routers import recommend as recommend_router_mod
 from app.routers import rgpd as rgpd_router_mod
+from app.routers import vitality as vitality_router_mod
+from app.services.embedding_service import EmbeddingService
 from app.services.mistral_service import MistralService
 from app.services.recommendation_service import RecommendationService
 from app.services.redis_service import RedisService, set_global_redis_service
 from app.services.rollout_service import RolloutService
+from app.services.semantic_search_service import SemanticSearchService
+from app.services.vitality_service import VitalityIndexService
 
 logger = get_logger("main")
 
@@ -48,22 +52,38 @@ async def lifespan(application: FastAPI) -> AsyncGenerator[None, None]:
 
     mistral_service = MistralService(settings)
     yunicity_service = get_yunicity_service(settings, http_client)
+
+    embedding_service: EmbeddingService | None = None
+    semantic_service: SemanticSearchService | None = None
+    try:
+        embedding_service = EmbeddingService(settings, redis_service)
+        await embedding_service.ensure_collections()
+        semantic_service = SemanticSearchService(embedding_service)
+        health.set_embedding_service(embedding_service)
+        logger.info("qdrant_connected")
+    except Exception as exc:
+        logger.warning("qdrant_init_failed_running_without_semantic", error=str(exc))
+
     recommendation_service = RecommendationService(
         redis=redis_service,
         mistral=mistral_service,
         yunicity=yunicity_service,
+        semantic=semantic_service,
     )
     rollout_service = RolloutService(settings)
+    vitality_service = VitalityIndexService(redis_service)
 
     application.state.recommendation_service = recommendation_service
     application.state.rollout_service = rollout_service
+    application.state.vitality_service = vitality_service
+    application.state.yunicity_service = yunicity_service
 
     logger.info(
         "application_starting",
         version=settings.APP_VERSION,
         environment=settings.YUNI_ENV,
         rollout_pct=settings.ROLLOUT_PERCENTAGE,
-        rollout_cities=settings.rollout_cities_list,
+        semantic_enabled=semantic_service is not None,
     )
     yield
 
@@ -200,6 +220,7 @@ def create_app() -> FastAPI:
     app.include_router(health.router)
     app.include_router(recommend_router_mod.router)
     app.include_router(rgpd_router_mod.router)
+    app.include_router(vitality_router_mod.router)
 
     return app
 

@@ -26,5 +26,14 @@ predeploy:
 
 check: lint typecheck audit
 
+seed-qdrant:
+	python scripts/seed_qdrant.py
+
+benchmark:
+	python scripts/benchmark_quality.py
+
+precompute-vitality:
+	python scripts/precompute_vitality.py
+
 build:
 	docker build -t yuni-ai -f infra/docker/Dockerfile .

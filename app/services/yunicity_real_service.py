@@ -9,6 +9,7 @@ import httpx
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
 
 from app.core.logging import get_logger
+from app.models.vitality import VitalityInputData
 from app.models.yunicity import MapData, Tribe, UserPassport
 from app.services.yunicity_api import YunicityAPIService
 
@@ -86,6 +87,29 @@ class RealYunicityHTTPService(YunicityAPIService):
         except Exception as exc:
             logger.warning("yunicity_map_error", error=str(exc))
             return MapData(actors=[], tribes=[], events=[], zone="unknown")
+
+    async def get_vitality_data(self, city: str, zone: str) -> VitalityInputData:
+        try:
+            resp = await self._client.get(
+                f"{self._base_url}/analytics/vitality",
+                params={"city": city, "zone": zone},
+                headers=self._headers(),
+                timeout=self._timeout,
+            )
+            resp.raise_for_status()
+            return VitalityInputData.model_validate(resp.json())
+        except Exception as exc:
+            logger.warning("yunicity_vitality_error", error=str(exc))
+            return VitalityInputData(
+                active_users_30d=0, event_participation_rate=0,
+                avg_citizen_points=0, posts_count_30d=0,
+                content_freshness_score=0, content_diversity_score=0,
+                active_actors_count=0, avg_actor_activity_score=0,
+                actor_category_diversity=0, upcoming_events_30d=0,
+                avg_event_fill_rate=0, events_per_week=0,
+                active_tribes_count=0, avg_tribe_activity_rate=0,
+                avg_tribe_activity_score=0,
+            )
 
     @staticmethod
     def _default_passport(user_id_hash: str) -> UserPassport:

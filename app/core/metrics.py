@@ -20,6 +20,8 @@ class YuniAIMetrics:
         self.not_eligible_requests: int = 0
         self.mistral_tokens_input: int = 0
         self.mistral_tokens_output: int = 0
+        self.semantic_searches: int = 0
+        self.semantic_fallbacks: int = 0
         self._latencies: deque[float] = deque(maxlen=max_samples)
 
     def record_cache_hit(self) -> None:
@@ -54,6 +56,14 @@ class YuniAIMetrics:
         with self._lock:
             self.mistral_tokens_input += input_tokens
             self.mistral_tokens_output += output_tokens
+
+    def record_semantic_search(self) -> None:
+        with self._lock:
+            self.semantic_searches += 1
+
+    def record_semantic_fallback(self) -> None:
+        with self._lock:
+            self.semantic_fallbacks += 1
 
     def record_latency(self, ms: float) -> None:
         with self._lock:
@@ -106,6 +116,8 @@ class YuniAIMetrics:
             "estimated_cost_eur": self.estimated_mistral_cost_eur,
             "eligible_requests": float(self.eligible_requests),
             "not_eligible_requests": float(self.not_eligible_requests),
+            "semantic_searches": float(self.semantic_searches),
+            "semantic_fallbacks": float(self.semantic_fallbacks),
         }
 
 

@@ -7,7 +7,7 @@ def test_settings_defaults() -> None:
     settings = Settings()
     assert settings.YUNI_ENV == "dev"
     assert settings.APP_NAME == "yuni-ai"
-    assert settings.APP_VERSION == "0.2.0"
+    assert settings.APP_VERSION == "0.3.0"
 
 
 def test_settings_is_dev() -> None:

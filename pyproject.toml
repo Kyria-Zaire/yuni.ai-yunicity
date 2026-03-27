@@ -1,6 +1,6 @@
 [project]
 name = "yuni-ai"
-version = "0.2.0"
+version = "0.3.0"
 description = "Microservice IA hyperlocal pour Yunicity — recommandations personnalisées"
 requires-python = ">=3.12,<3.14"
 readme = "README.md"
@@ -17,6 +17,7 @@ dependencies = [
     "tenacity>=8",
     "structlog>=24",
     "PyJWT[crypto]>=2.8",
+    "qdrant-client>=1.9",
 ]
 
 [project.optional-dependencies]
@@ -56,6 +57,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["S101", "S106", "S107"]
+"scripts/**/*.py" = ["T201"]
 
 [tool.mypy]
 python_version = "3.13"
@@ -65,6 +67,10 @@ exclude = ["tests/"]
 
 [[tool.mypy.overrides]]
 module = "mistralai.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "qdrant_client.*"
 ignore_missing_imports = true
 
 [tool.pydantic-mypy]

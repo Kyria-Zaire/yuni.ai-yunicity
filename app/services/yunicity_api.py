@@ -2,6 +2,7 @@
 
 from abc import ABC, abstractmethod
 
+from app.models.vitality import VitalityInputData
 from app.models.yunicity import MapData, Tribe, UserPassport
 
 
@@ -23,5 +24,9 @@ class YunicityAPIService(ABC):
     @abstractmethod
     async def get_map_data(self, lat: float, lng: float) -> MapData:
         """Fetch actors and events for a geographic zone."""
+
+    @abstractmethod
+    async def get_vitality_data(self, city: str, zone: str) -> VitalityInputData:
+        """Fetch aggregated vitality metrics for a zone."""
 
 
