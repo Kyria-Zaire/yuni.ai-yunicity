@@ -20,13 +20,16 @@ from app.core.exceptions import (
     RateLimitError,
     YuniAIError,
 )
+from app.core.http_client import close_http_client, init_http_client
 from app.core.logging import configure_logging, get_logger
 from app.models.common import ProblemDetail
 from app.routers import health
 from app.routers import recommend as recommend_router_mod
+from app.routers import rgpd as rgpd_router_mod
 from app.services.mistral_service import MistralService
 from app.services.recommendation_service import RecommendationService
 from app.services.redis_service import RedisService, set_global_redis_service
+from app.services.rollout_service import RolloutService
 
 logger = get_logger("main")
 
@@ -41,22 +44,30 @@ async def lifespan(application: FastAPI) -> AsyncGenerator[None, None]:
     set_global_redis_service(redis_service)
     health.set_redis_service(redis_service)
 
+    http_client = await init_http_client()
+
     mistral_service = MistralService(settings)
-    yunicity_service = get_yunicity_service(settings)
+    yunicity_service = get_yunicity_service(settings, http_client)
     recommendation_service = RecommendationService(
         redis=redis_service,
         mistral=mistral_service,
         yunicity=yunicity_service,
     )
+    rollout_service = RolloutService(settings)
+
     application.state.recommendation_service = recommendation_service
+    application.state.rollout_service = rollout_service
 
     logger.info(
         "application_starting",
         version=settings.APP_VERSION,
         environment=settings.YUNI_ENV,
+        rollout_pct=settings.ROLLOUT_PERCENTAGE,
+        rollout_cities=settings.rollout_cities_list,
     )
     yield
 
+    await close_http_client()
     await redis_service.close()
     set_global_redis_service(None)
     logger.info("application_shutting_down")
@@ -78,7 +89,7 @@ def create_app() -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins_list,
-        allow_methods=["GET", "POST"],
+        allow_methods=["GET", "POST", "DELETE"],
         allow_headers=["Authorization", "Content-Type"],
         allow_credentials=True,
     )
@@ -188,6 +199,7 @@ def create_app() -> FastAPI:
 
     app.include_router(health.router)
     app.include_router(recommend_router_mod.router)
+    app.include_router(rgpd_router_mod.router)
 
     return app
 

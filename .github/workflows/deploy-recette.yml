@@ -1,0 +1,62 @@
+name: Deploy Recette
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: recette
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway recette
+        run: railway up --service yuni-ai-recette --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_RECETTE }}
+
+      - name: Wait for deployment
+        run: sleep 45
+
+      - name: Smoke test — health check
+        run: |
+          response=$(curl -sf \
+            https://yuni-ai-recette.up.railway.app/health \
+            --max-time 10)
+          echo "$response" | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          assert data['status'] == 'healthy', f'Status: {data[\"status\"]}'
+          assert data['services']['redis'] == 'connected', 'Redis not connected'
+          print('Health check passed')
+          print(f'  Environment: {data[\"environment\"]}')
+          print(f'  Redis: {data[\"services\"][\"redis\"]}')
+          "
+
+      - name: Smoke test — endpoint disponible (sans JWT)
+        run: |
+          status=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST https://yuni-ai-recette.up.railway.app/v1/recommend/engagement \
+            -H "Content-Type: application/json" \
+            -d '{}')
+          if [ "$status" = "401" ] || [ "$status" = "422" ]; then
+            echo "Endpoint disponible (retourne $status comme attendu)"
+          else
+            echo "Endpoint inattendu: $status"
+            exit 1
+          fi
+
+      - name: Notify success
+        if: success()
+        run: echo "Deploy recette reussi — $(date)"
+
+      - name: Notify failure
+        if: failure()
+        run: |
+          echo "Deploy recette ECHOUE"
+          echo "Pour rollback : railway rollback --service yuni-ai-recette"

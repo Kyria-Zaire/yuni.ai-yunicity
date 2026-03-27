@@ -57,6 +57,11 @@ async def client(mock_svc: MagicMock):  # type: ignore[no-untyped-def]
         app = create_app()
         app.state.recommendation_service = mock_svc
 
+        mock_rollout = MagicMock()
+        mock_rollout.is_eligible = MagicMock(return_value=True)
+        mock_rollout.rollout_percentage = 10
+        app.state.rollout_service = mock_rollout
+
         async with AsyncClient(
             transport=ASGITransport(app=app),
             base_url="http://testserver",

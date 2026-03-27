@@ -11,13 +11,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from app.core.config import get_settings  # noqa: E402
-from app.core.dependencies import get_yunicity_service  # noqa: E402
-from app.core.logging import configure_logging, get_logger  # noqa: E402
-from app.models.recommend import GeoInput, UserInput  # noqa: E402
-from app.services.mistral_service import MistralService  # noqa: E402
-from app.services.recommendation_service import RecommendationService  # noqa: E402
-from app.services.redis_service import RedisService  # noqa: E402
+from app.core.config import get_settings
+from app.core.dependencies import get_yunicity_service
+from app.core.logging import configure_logging, get_logger
+from app.models.recommend import GeoInput, UserInput
+from app.services.mistral_service import MistralService
+from app.services.recommendation_service import RecommendationService
+from app.services.redis_service import RedisService
 
 logger = get_logger("precompute")
 

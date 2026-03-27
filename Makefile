@@ -21,6 +21,9 @@ typecheck:
 audit:
 	pip-audit
 
+predeploy:
+	python scripts/pre_deploy_check.py
+
 check: lint typecheck audit
 
 build:

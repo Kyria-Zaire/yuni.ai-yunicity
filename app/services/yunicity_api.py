@@ -25,14 +25,3 @@ class YunicityAPIService(ABC):
         """Fetch actors and events for a geographic zone."""
 
 
-class RealYunicityAPIService(YunicityAPIService):
-    """Production client — calls the real Yunicity APIs (Mois 2)."""
-
-    async def get_user_passport(self, user_id_hash: str) -> UserPassport:
-        raise NotImplementedError("RealYunicityAPIService will be implemented in Mois 2")
-
-    async def get_city_tribes(self, city: str) -> list[Tribe]:
-        raise NotImplementedError("RealYunicityAPIService will be implemented in Mois 2")
-
-    async def get_map_data(self, lat: float, lng: float) -> MapData:
-        raise NotImplementedError("RealYunicityAPIService will be implemented in Mois 2")

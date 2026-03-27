@@ -15,10 +15,12 @@ from app.core.metrics import metrics
 from app.core.security import verify_jwt
 from app.models.common import ProblemDetail, ResponseMeta
 from app.models.recommend import (
+    NotEligibleResponse,
     RecommendationResponse,
     UserInput,
 )
 from app.services.recommendation_service import RecommendationService
+from app.services.rollout_service import RolloutService
 
 logger = get_logger("recommend")
 
@@ -31,9 +33,15 @@ def get_recommendation_service(request: Request) -> RecommendationService:
     return svc
 
 
+def get_rollout_service(request: Request) -> RolloutService:
+    """Retrieve the RolloutService from app state."""
+    svc: RolloutService = request.app.state.rollout_service
+    return svc
+
+
 @router.post(
     "/v1/recommend/engagement",
-    response_model=RecommendationResponse,
+    response_model=RecommendationResponse | NotEligibleResponse,
     status_code=200,
     summary="Recommandations personnalisees pour un utilisateur",
     description=(
@@ -43,7 +51,7 @@ def get_recommendation_service(request: Request) -> RecommendationService:
         "Requiert un JWT Bearer token. Rate limit: 20 req/min."
     ),
     responses={
-        200: {"description": "Recommandations generees avec succes"},
+        200: {"description": "Recommandations generees ou non eligible"},
         401: {"description": "JWT manquant ou invalide"},
         422: {"description": "Donnees d'entree invalides"},
         429: {"description": "Trop de requetes"},
@@ -55,9 +63,28 @@ async def recommend_engagement(
     user: UserInput,
     jwt_payload: dict[str, Any] = Depends(verify_jwt),
     svc: RecommendationService = Depends(get_recommendation_service),
-) -> RecommendationResponse:
+    rollout: RolloutService = Depends(get_rollout_service),
+) -> RecommendationResponse | NotEligibleResponse:
     start = time.perf_counter()
     request_id = str(uuid4())
+
+    if not rollout.is_eligible(user.user_id_hash, user.city, request):
+        metrics.record_not_eligible()
+        logger.info(
+            "rollout_not_eligible",
+            city=user.city,
+            rollout_pct=rollout.rollout_percentage,
+        )
+        return NotEligibleResponse(
+            message="Yuni AI pas encore disponible pour votre profil.",
+            meta=ResponseMeta(
+                request_id=request_id,
+                timestamp=datetime.now(UTC),
+                source="yuni-ai-rollout",
+            ),
+        )
+
+    metrics.record_eligible()
 
     try:
         output, source = await svc.get_recommendations(user)

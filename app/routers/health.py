@@ -1,10 +1,11 @@
-"""Health check endpoints for liveness and readiness probes."""
+"""Health check and internal metrics endpoints."""
 
 from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Request, Response
+from fastapi.responses import JSONResponse
 
 from app.core.config import get_settings
 from app.core.logging import get_logger
@@ -37,6 +38,8 @@ async def _check_redis() -> str:
 async def health() -> dict[str, object]:
     settings = get_settings()
     redis_status = await _check_redis()
+    metrics_data = metrics.to_dict()
+    metrics_data["rollout_percentage"] = float(settings.ROLLOUT_PERCENTAGE)
     return {
         "status": "healthy",
         "version": settings.APP_VERSION,
@@ -46,7 +49,7 @@ async def health() -> dict[str, object]:
             "redis": redis_status,
             "mistral": "available",
         },
-        "metrics": metrics.to_dict(),
+        "metrics": metrics_data,
     }
 
 
@@ -64,3 +67,16 @@ async def readiness(response: Response) -> dict[str, object]:
             "redis": redis_status,
         },
     }
+
+
+@router.get("/internal/metrics", include_in_schema=False)
+async def internal_metrics(request: Request) -> Response:
+    """Admin-only metrics endpoint — requires X-Internal-Token header."""
+    settings = get_settings()
+    expected = settings.INTERNAL_METRICS_TOKEN.get_secret_value()
+    provided = request.headers.get("X-Internal-Token", "")
+
+    if not expected or provided != expected:
+        return JSONResponse(status_code=403, content={"detail": "Forbidden"})
+
+    return JSONResponse(content=metrics.to_dict())

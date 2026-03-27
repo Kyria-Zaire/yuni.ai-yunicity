@@ -1,6 +1,6 @@
 [project]
 name = "yuni-ai"
-version = "0.1.0"
+version = "0.2.0"
 description = "Microservice IA hyperlocal pour Yunicity — recommandations personnalisées"
 requires-python = ">=3.12,<3.14"
 readme = "README.md"
@@ -32,6 +32,7 @@ dev = [
     "faker>=25",
     "fakeredis[aioredis]>=2.23",
     "types-redis>=4",
+    "respx>=0.21",
 ]
 
 [build-system]
@@ -54,7 +55,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["S101", "S106"]
+"tests/**/*.py" = ["S101", "S106", "S107"]
 
 [tool.mypy]
 python_version = "3.13"

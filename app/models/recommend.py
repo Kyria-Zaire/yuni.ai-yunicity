@@ -8,7 +8,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field, field_validator
 
-from app.models.common import APIResponse
+from app.models.common import APIResponse, ResponseMeta
 
 ALLOWED_INTERESTS = frozenset({
     "sport", "culture", "environnement", "famille", "tech",
@@ -137,3 +137,11 @@ RecommendationRequest = UserInput
 
 class RecommendationResponse(APIResponse[RecommendationOutput]):
     """Typed wrapper for the recommendation endpoint response."""
+
+
+class NotEligibleResponse(BaseModel):
+    """Returned when the user is not in the rollout cohort."""
+
+    eligible: bool = False
+    message: str
+    meta: ResponseMeta
