@@ -104,6 +104,8 @@ class TestToDict:
             "estimated_cost_eur", "eligible_requests", "not_eligible_requests",
             "semantic_searches", "semantic_fallbacks",
             "voice_turns", "stt_calls", "tts_calls", "tts_cache_hits",
+            "xp_awarded", "badges_unlocked",
+            "quests_generated", "quests_completed",
         }
         assert set(d.keys()) == expected_keys
 

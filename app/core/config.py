@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     # --- Application ---
     YUNI_ENV: Literal["dev", "recette", "recette_mock", "preprod", "prod"] = "dev"
     APP_NAME: str = "yuni-ai"
-    APP_VERSION: str = "1.2.0"
+    APP_VERSION: str = "1.3.0"
     LOG_LEVEL: str = "info"
 
     # --- AI Providers ---
@@ -75,6 +75,10 @@ class Settings(BaseSettings):
 
     # --- Voice (STT Whisper) ---
     WHISPER_LOCAL: bool = False
+
+    # --- Firebase (Notifications) ---
+    FIREBASE_CREDENTIALS_JSON: str = ""
+    FIREBASE_PROJECT_ID: str = ""
 
     @property
     def is_prod(self) -> bool:

@@ -25,22 +25,33 @@ from app.core.http_client import close_http_client, init_http_client
 from app.core.logging import configure_logging, get_logger
 from app.models.common import ProblemDetail
 from app.routers import chat as chat_router_mod
+from app.routers import cities as cities_router_mod
 from app.routers import dashboard as dashboard_router_mod
+from app.routers import gamification as gamification_router_mod
 from app.routers import health
+from app.routers import leaderboard as leaderboard_router_mod
 from app.routers import merchant as merchant_router_mod
 from app.routers import onboarding as onboarding_router_mod
+from app.routers import quests as quests_router_mod
 from app.routers import recommend as recommend_router_mod
 from app.routers import reports as reports_router_mod
 from app.routers import rgpd as rgpd_router_mod
+from app.routers import sentiment as sentiment_router_mod
 from app.routers import stripe_webhook as stripe_router_mod
 from app.routers import vitality as vitality_router_mod
 from app.routers import voice as voice_router_mod
+from app.services.city_registry_service import CityRegistryService
 from app.services.embedding_service import EmbeddingService
+from app.services.gamification_service import GamificationService
+from app.services.leaderboard_service import LeaderboardService
 from app.services.mistral_service import MistralService
+from app.services.notification_service import NotificationService
+from app.services.quest_service import QuestService
 from app.services.recommendation_service import RecommendationService
 from app.services.redis_service import RedisService, set_global_redis_service
 from app.services.rollout_service import RolloutService
 from app.services.semantic_search_service import SemanticSearchService
+from app.services.sentiment_service import SentimentService
 from app.services.stt_service import STTService
 from app.services.tts_service import TTSService
 from app.services.vitality_service import VitalityIndexService
@@ -126,6 +137,25 @@ async def lifespan(application: FastAPI) -> AsyncGenerator[None, None]:
 
     application.state.stt_service = stt_service
     application.state.tts_service = tts_service
+
+    gamification_service = GamificationService(redis_service)
+    city_registry_service = CityRegistryService(redis_service)
+    leaderboard_service = LeaderboardService(redis_service, gamification_service)
+    quest_service = QuestService(
+        mistral_client=mistral_service._get_client(), redis=redis_service,
+    )
+    sentiment_service = SentimentService(
+        mistral_client=mistral_service._get_client(), redis=redis_service,
+    )
+    notification_service = NotificationService(redis=redis_service, settings=settings)
+
+    application.state.gamification_service = gamification_service
+    application.state.city_registry_service = city_registry_service
+    application.state.leaderboard_service = leaderboard_service
+    application.state.quest_service = quest_service
+    application.state.sentiment_service = sentiment_service
+    application.state.notification_service = notification_service
+    application.state.settings = settings
 
     logger.info(
         "application_starting",
@@ -286,6 +316,11 @@ def create_app() -> FastAPI:
     app.include_router(reports_router_mod.router)
     app.include_router(merchant_router_mod.router)
     app.include_router(onboarding_router_mod.router)
+    app.include_router(gamification_router_mod.router)
+    app.include_router(quests_router_mod.router)
+    app.include_router(leaderboard_router_mod.router)
+    app.include_router(cities_router_mod.router)
+    app.include_router(sentiment_router_mod.router)
 
     return app
 

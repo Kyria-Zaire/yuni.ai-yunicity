@@ -26,6 +26,10 @@ class YuniAIMetrics:
         self.stt_calls: int = 0
         self.tts_calls: int = 0
         self.tts_cache_hits: int = 0
+        self.xp_awarded: int = 0
+        self.badges_unlocked: int = 0
+        self.quests_generated: int = 0
+        self.quests_completed: int = 0
         self._latencies: deque[float] = deque(maxlen=max_samples)
         self._pipeline_latencies: deque[float] = deque(maxlen=max_samples)
 
@@ -85,6 +89,22 @@ class YuniAIMetrics:
     def record_tts_cache_hit(self) -> None:
         with self._lock:
             self.tts_cache_hits += 1
+
+    def record_xp_awarded(self) -> None:
+        with self._lock:
+            self.xp_awarded += 1
+
+    def record_badge_unlocked(self) -> None:
+        with self._lock:
+            self.badges_unlocked += 1
+
+    def record_quest_generated(self) -> None:
+        with self._lock:
+            self.quests_generated += 1
+
+    def record_quest_completed(self) -> None:
+        with self._lock:
+            self.quests_completed += 1
 
     def record_pipeline_latency(self, ms: float) -> None:
         with self._lock:
@@ -147,6 +167,10 @@ class YuniAIMetrics:
             "stt_calls": float(self.stt_calls),
             "tts_calls": float(self.tts_calls),
             "tts_cache_hits": float(self.tts_cache_hits),
+            "xp_awarded": float(self.xp_awarded),
+            "badges_unlocked": float(self.badges_unlocked),
+            "quests_generated": float(self.quests_generated),
+            "quests_completed": float(self.quests_completed),
         }
 
 
