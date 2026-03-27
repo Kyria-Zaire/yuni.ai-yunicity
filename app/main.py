@@ -1,5 +1,7 @@
 """Yuni AI — FastAPI application entry point."""
 
+from __future__ import annotations
+
 import time
 import uuid
 from collections.abc import AsyncGenerator, Awaitable, Callable
@@ -12,6 +14,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 
 from app.core.config import get_settings
+from app.core.dependencies import get_yunicity_service
 from app.core.exceptions import (
     AuthenticationError,
     RateLimitError,
@@ -20,21 +23,32 @@ from app.core.exceptions import (
 from app.core.logging import configure_logging, get_logger
 from app.models.common import ProblemDetail
 from app.routers import health
+from app.routers import recommend as recommend_router_mod
+from app.services.mistral_service import MistralService
+from app.services.recommendation_service import RecommendationService
 from app.services.redis_service import RedisService, set_global_redis_service
 
 logger = get_logger("main")
 
 
 @asynccontextmanager
-async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(application: FastAPI) -> AsyncGenerator[None, None]:
     """Application startup and shutdown lifecycle."""
     settings = get_settings()
     configure_logging(level=settings.LOG_LEVEL, is_dev=settings.is_dev)
 
-    # Initialize Redis
     redis_service = RedisService(settings)
     set_global_redis_service(redis_service)
     health.set_redis_service(redis_service)
+
+    mistral_service = MistralService(settings)
+    yunicity_service = get_yunicity_service(settings)
+    recommendation_service = RecommendationService(
+        redis=redis_service,
+        mistral=mistral_service,
+        yunicity=yunicity_service,
+    )
+    application.state.recommendation_service = recommendation_service
 
     logger.info(
         "application_starting",
@@ -43,7 +57,6 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     )
     yield
 
-    # Shutdown
     await redis_service.close()
     set_global_redis_service(None)
     logger.info("application_shutting_down")
@@ -62,8 +75,6 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
-    # --- Middleware (applied in reverse order — last added runs first) ---
-
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins_list,
@@ -81,7 +92,6 @@ def create_app() -> FastAPI:
     async def security_headers_middleware(
         request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
-        """Add security headers to every response."""
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
@@ -99,7 +109,6 @@ def create_app() -> FastAPI:
     async def request_logging_middleware(
         request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
-        """Log every request with method, path, status, and latency."""
         request_id = str(uuid.uuid4())
         request.state.request_id = request_id
         start = time.perf_counter()
@@ -115,8 +124,6 @@ def create_app() -> FastAPI:
         )
         response.headers["X-Request-ID"] = request_id
         return response
-
-    # --- Exception handlers ---
 
     @app.exception_handler(AuthenticationError)
     async def auth_error_handler(
@@ -179,8 +186,8 @@ def create_app() -> FastAPI:
         )
         return JSONResponse(status_code=500, content=detail.model_dump())
 
-    # --- Routers ---
     app.include_router(health.router)
+    app.include_router(recommend_router_mod.router)
 
     return app
 

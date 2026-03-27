@@ -56,5 +56,6 @@ class MapData(BaseModel):
     """Aggregated map data for a geographic zone."""
 
     actors: list[Actor]
+    tribes: list[Tribe] = []
     events: list[Event]
     zone: str

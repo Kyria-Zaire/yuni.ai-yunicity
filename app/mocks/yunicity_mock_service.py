@@ -235,6 +235,7 @@ class MockYunicityAPIService(YunicityAPIService):
         await _simulate_latency()
         return MapData(
             actors=REIMS_ACTORS,
+            tribes=REIMS_TRIBES,
             events=REIMS_EVENTS,
             zone=f"reims-{lat:.2f}-{lng:.2f}",
         )

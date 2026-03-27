@@ -1,11 +1,14 @@
 """Health check endpoints for liveness and readiness probes."""
 
+from __future__ import annotations
+
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, Response
 
 from app.core.config import get_settings
 from app.core.logging import get_logger
+from app.core.metrics import metrics
 from app.services.redis_service import RedisService
 
 router = APIRouter(tags=["health"])
@@ -15,13 +18,11 @@ _redis_service: RedisService | None = None
 
 
 def set_redis_service(service: RedisService) -> None:
-    """Set the Redis service instance (called from lifespan)."""
     global _redis_service
     _redis_service = service
 
 
 async def _check_redis() -> str:
-    """Return Redis connectivity status."""
     if _redis_service is None:
         return "not_configured"
     try:
@@ -34,7 +35,6 @@ async def _check_redis() -> str:
 
 @router.get("/health")
 async def health() -> dict[str, object]:
-    """Liveness probe — always returns 200 if the process is running."""
     settings = get_settings()
     redis_status = await _check_redis()
     return {
@@ -46,12 +46,12 @@ async def health() -> dict[str, object]:
             "redis": redis_status,
             "mistral": "available",
         },
+        "metrics": metrics.to_dict(),
     }
 
 
 @router.get("/health/ready")
 async def readiness(response: Response) -> dict[str, object]:
-    """Readiness probe — returns 503 if critical services are down."""
     redis_status = await _check_redis()
     is_ready = redis_status == "connected"
 
