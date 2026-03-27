@@ -18,14 +18,18 @@ from app.core.dependencies import get_yunicity_service
 from app.core.exceptions import (
     AuthenticationError,
     RateLimitError,
+    WebhookBlockedError,
     YuniAIError,
 )
 from app.core.http_client import close_http_client, init_http_client
 from app.core.logging import configure_logging, get_logger
 from app.models.common import ProblemDetail
+from app.routers import chat as chat_router_mod
+from app.routers import dashboard as dashboard_router_mod
 from app.routers import health
 from app.routers import recommend as recommend_router_mod
 from app.routers import rgpd as rgpd_router_mod
+from app.routers import stripe_webhook as stripe_router_mod
 from app.routers import vitality as vitality_router_mod
 from app.services.embedding_service import EmbeddingService
 from app.services.mistral_service import MistralService
@@ -77,6 +81,8 @@ async def lifespan(application: FastAPI) -> AsyncGenerator[None, None]:
     application.state.rollout_service = rollout_service
     application.state.vitality_service = vitality_service
     application.state.yunicity_service = yunicity_service
+    application.state.mistral_client = mistral_service._get_client()
+    application.state.semantic_service = semantic_service
 
     logger.info(
         "application_starting",
@@ -180,6 +186,15 @@ def create_app() -> FastAPI:
         )
         return JSONResponse(status_code=429, content=detail.model_dump())
 
+    @app.exception_handler(WebhookBlockedError)
+    async def webhook_blocked_handler(
+        _request: Request, exc: WebhookBlockedError
+    ) -> JSONResponse:
+        return JSONResponse(
+            status_code=403,
+            content={"detail": exc.detail},
+        )
+
     @app.exception_handler(YuniAIError)
     async def yuni_error_handler(
         _request: Request, exc: YuniAIError
@@ -221,6 +236,9 @@ def create_app() -> FastAPI:
     app.include_router(recommend_router_mod.router)
     app.include_router(rgpd_router_mod.router)
     app.include_router(vitality_router_mod.router)
+    app.include_router(chat_router_mod.router)
+    app.include_router(dashboard_router_mod.router)
+    app.include_router(stripe_router_mod.router)
 
     return app
 

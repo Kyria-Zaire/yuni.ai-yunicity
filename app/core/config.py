@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     # --- Application ---
     YUNI_ENV: Literal["dev", "recette", "recette_mock", "preprod", "prod"] = "dev"
     APP_NAME: str = "yuni-ai"
-    APP_VERSION: str = "0.3.0"
+    APP_VERSION: str = "1.1.0"
     LOG_LEVEL: str = "info"
 
     # --- AI Providers ---
