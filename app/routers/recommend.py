@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import time
 from datetime import UTC, datetime
 from typing import Any
@@ -13,6 +14,7 @@ from app.core.exceptions import ExternalAPIError
 from app.core.logging import get_logger
 from app.core.metrics import metrics
 from app.core.security import verify_jwt
+from app.models.audit import AIDecisionType
 from app.models.common import ProblemDetail, ResponseMeta
 from app.models.recommend import (
     NotEligibleResponse,
@@ -120,6 +122,21 @@ async def recommend_engagement(
         latency_ms=latency_ms,
         cache_hit=(source == "yuni_ai_cache"),
     )
+
+    blackbox = getattr(request.app.state, "civic_blackbox_service", None)
+    if blackbox:
+        asyncio.create_task(blackbox.record(  # noqa: RUF006
+            decision_type=AIDecisionType.RECOMMENDATION,
+            model_used="mistral-large-latest",
+            source=source,
+            city=user.city,
+            decision_summary=f"Recommande {len(output.actors)} acteurs",
+            factors=user.interests,
+            confidence=0.85,
+            latency_ms=int(latency_ms),
+            user_id_hash=user.user_id_hash,
+            cache_hit=(source == "yuni_ai_cache"),
+        ))
 
     return RecommendationResponse(
         data=output,

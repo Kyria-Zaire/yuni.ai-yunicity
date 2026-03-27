@@ -1,119 +1,73 @@
 # Changelog — Yuni AI
 
-## v1.1.0 — Sprint 4 (Juillet 2026)
+## [2.0.0] - 2026-11-XX
 
-### Chat IA
-- POST /v1/chat avec memoire Redis (30 messages, rolling window)
-- Contexte territorial injecte automatiquement (vitalite)
-- DELETE /v1/chat/{session_id} pour suppression RGPD
-
-### Agent territorial ReAct
-- Pattern ReAct avec Mistral function calling
-- 3 outils : search_local_actors, get_vitality_score, get_recommendations
-- Dispatch automatique agent vs chat classique (keyword detection)
-- Protection max 5 iterations + timeout 30s
-
-### Dashboard villes API
-- GET /v1/dashboard/{city}/vitality — scores par zone
-- GET /v1/dashboard/{city}/engagement — KPIs agreges
-- GET /v1/dashboard/{city}/actors — acteurs avec compteur recommandations
-- GET /v1/dashboard/{city}/export — export CSV/JSON
-- Auth role=city_dashboard avec scoping par ville
-
-### Abonnement Pro Stripe
-- Feature gate Pro sur /v1/chat (402 Payment Required)
-- Webhook Stripe avec 4 gardes (env, test key, signature, idempotence)
-- SubscriptionService avec statuts FREE/PRO/PRO_PLUS
-
-### Production
-- Workflow deploy-prod.yml avec approbation manuelle
-- Smoke tests production (health + endpoint secured)
-- Monitoring 5 min post-deploy
-- ROLLOUT_PERCENTAGE=100
-
-### Load testing et SLO
-- Script k6 (50 → 200 → 500 VUs)
-- SLO documentes : 99.5% uptime, P95 < 800ms, cache > 70%
-- Runbooks incidents
-- Kubernetes roadmap documentee
+### Added (Sprint 8)
+- Civic Blackbox: immutable AI decision audit trail (EU AI Act compliant)
+- EU Federation: city peer comparison FR/BE/DE with ODBL sharing
+- Predictive analytics: 7-day urban flow forecast per zone
+- Partner SDK: API keys + 4 tiers + sandbox + hourly rate limiting
+- Funding dossier: PIIEC/Bpifrance technical documentation
+- Load testing: k6 1000 VUs stress test script
+- Fire-and-forget blackbox recording in recommend, chat, vitality routers
+- EU AI Act transparency notice published
 
 ---
 
-## v0.3.0 — Sprint 3 (Juin 2026)
+## [1.4.0] - 2026-10-XX
 
-### Embeddings et Qdrant
-- Qdrant vector store integre (Docker dev, Cloud prod)
-- EmbeddingService avec mistral-embed (1024 dims)
-- Cache Redis des embeddings (TTL 30 jours)
-- Batch indexing avec semaphore
-
-### Recherche semantique
-- SemanticSearchService avec cosine similarity
-- Filtre par ville via payload Qdrant
-- Query naturelle construite a partir des interets
-- Fallback gracieux si Qdrant indisponible
-
-### Indice de vitalite
-- Score composite 0-100 sur 5 dimensions
-- Grades A-E et trend up/stable/down
-- GET /v1/vitality/{city}/{zone}
-- Cache 30 jours avec pre-computation nocturne
-
-### Pipeline semantique
-- /recommend enrichi : Qdrant top-5 → Mistral preselection
-- Reduction tokens Mistral grace a la preselection
+### Added (Sprint 7)
+- Mistral routing: Large vs Small (cost ÷3)
+- Semantic cache v2: Qdrant similarity threshold 0.92
+- Budget dashboard: real-time cost tracking + alerts
+- Civic data protocol: ODbL export (data.gouv.fr compatible)
+- Multilingual: FR/EN/DE/ES + Polly voice per language
+- Admin panel: consolidated supervision API
 
 ---
 
-## v0.2.0 — Sprint 2 (Mai 2026)
+## [1.3.0] - 2026-09-XX
 
-### Deploy Railway recette
-- Workflow deploy-recette.yml avec smoke tests
-- Script pre_deploy_check.py
-
-### Feature flag rollout
-- RolloutService deterministe (hash-based buckets)
-- ROLLOUT_PERCENTAGE configurable sans redeploy
-- Admin bypass header
-
-### Monitoring et budget
-- YuniAIMetrics enrichi (latence P50/P95, cout Mistral)
-- Budget alerting (warning/critical/emergency)
-- GET /internal/metrics (admin)
-
-### Service Yunicity reel
-- RealYunicityHTTPService avec degradation gracieuse
-- httpx client partage avec connection pool
-
-### RGPD
-- DELETE /v1/ai/user-data/{user_hash}
-- Registre des traitements documente
-- docs/rgpd/data-processing.md
+### Added (Sprint 6)
+- XP gamification: 8 actions, 15 badges, 5 citizen levels
+- AI-generated urban quests: weekly via Mistral
+- Anonymized leaderboard: deterministic pseudonyms
+- City registry: multi-city without redeploy
+- NLP sentiment: neighborhood mood score
+- Firebase push notifications: RGPD opt-in
 
 ---
 
-## v0.1.0 — Sprint 1 (Avril 2026 — Semaines 2-3)
+## [1.2.0] - 2026-08-XX
 
-### Endpoint recommandation
-- POST /v1/recommend/engagement
-- MistralService avec retry et fallback business rules
-- Cache Redis (TTL 1h)
-- Prompt engineering securise (anti-injection)
-
-### Modeles Yunicity
-- UserPassport, MapData, Actor, Tribe, Event
-- Mock Yunicity service (donnees Reims)
+### Added (Sprint 5)
+- STT: Whisper API (audio to text, RGPD compliant)
+- TTS: Amazon Polly Lea FR neural + Redis cache
+- Voice pipeline: WebSocket Hey Yuni < 3s E2E
+- Citizen reports: vocal + auto-categorization
+- Merchant AI: 7 content types generator
+- Newcomer onboarding: vocal guide
 
 ---
 
-## v0.0.1 — Sprint 0 (Avril 2026 — Semaine 1)
+## [1.1.0] - 2026-07-XX
 
-### Fondations
-- Projet FastAPI structure (app/, tests/, infra/, docs/)
-- Config centralisee (Pydantic Settings)
-- Logging structure JSON
-- JWT RS256 authentication
-- Redis service avec degradation gracieuse
-- Health endpoint
-- Docker Compose dev
-- CI GitHub Actions (ruff, mypy, pytest, pip-audit)
+### Added (Sprint 4)
+- Chat with Redis memory: 30 messages + territorial context
+- ReAct agent: 3 tools (actors, vitality, recommendations)
+- City dashboard API: 4 endpoints + role city_dashboard
+- Production deploy: Railway + 100% rollout
+- Pro subscription: Stripe + 4 webhook guards
+- Load testing: k6 500 VUs + SLO documentation
+
+---
+
+## [1.0.0] - 2026-06-XX
+
+### Added (Sprints 0-3)
+- POST /v1/recommend/engagement: semantic RAG pipeline
+- Redis cache-aside + semantic cache Qdrant
+- Vitality index: 5 dimensions, grades A-E, 30-day cache
+- Feature flag: deterministic rollout by user hash
+- Monitoring: cost tracking + budget alerts
+- RGPD: DELETE /v1/ai/user-data/:hash

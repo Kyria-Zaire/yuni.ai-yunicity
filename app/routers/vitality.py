@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
@@ -11,6 +12,7 @@ from fastapi import APIRouter, Depends, Path, Request
 from app.core.config import CacheTTL
 from app.core.logging import get_logger
 from app.core.security import verify_jwt
+from app.models.audit import AIDecisionType
 from app.models.common import APIResponse, ResponseMeta
 from app.models.vitality import VitalityIndex, VitalityIndexResponse
 from app.services.redis_service import get_redis_service
@@ -72,6 +74,20 @@ async def get_vitality_index(
         index.model_dump_json(),
         ttl_seconds=CacheTTL.CITY_VITALITY,
     )
+
+    blackbox = getattr(request.app.state, "civic_blackbox_service", None)
+    if blackbox:
+        asyncio.create_task(blackbox.record(  # noqa: RUF006
+            decision_type=AIDecisionType.VITALITY_SCORE,
+            model_used="computation",
+            source="vitality_engine",
+            city=city,
+            zone=zone,
+            decision_summary=f"Vitalite {zone}: {index.score}/100 ({index.grade})",
+            factors=[d.name for d in index.dimensions],
+            confidence=0.95,
+            latency_ms=0,
+        ))
 
     return _build_response(index)
 
