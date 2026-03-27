@@ -81,7 +81,7 @@ class ChatMemoryService:
                     f"{vdata['score']}/100 (grade {vdata['grade']})"
                 )
             except (json.JSONDecodeError, KeyError):
-                pass
+                logger.warning("vitality_context_parse_error", city=city)
         parts.append(f"Ville : {city.capitalize()}")
         return "\n".join(parts)
 
