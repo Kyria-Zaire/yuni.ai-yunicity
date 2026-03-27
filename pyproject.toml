@@ -16,7 +16,7 @@ dependencies = [
     "mistralai>=1.0",
     "tenacity>=8",
     "structlog>=24",
-    "python-jose[cryptography]>=3.3",
+    "PyJWT[crypto]>=2.8",
 ]
 
 [project.optional-dependencies]

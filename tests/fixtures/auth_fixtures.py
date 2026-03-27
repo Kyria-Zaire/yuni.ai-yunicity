@@ -5,9 +5,9 @@ from __future__ import annotations
 import time
 from typing import Any
 
+import jwt
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
-from jose import jwt
 
 _private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
 _public_key = _private_key.public_key()
