@@ -33,7 +33,7 @@ function moodColor(mood: number): string {
     return "bg-yuni-forest-500";
   }
   if (mood >= 40) {
-    return "bg-yuni-wheat-400";
+    return "bg-yuni-wheat-300";
   }
   return "bg-yuni-terracotta-500";
 }

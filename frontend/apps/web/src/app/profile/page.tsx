@@ -112,12 +112,14 @@ export default function ProfilePage() {
                 animate={{ opacity: 1, y: 0 }}
                 className={`rounded-yuni-lg border p-3 text-sm ${
                   on
-                    ? "border-yuni-terracotta-200 bg-white shadow-yuni-sm"
-                    : "border-yuni-wheat-100 bg-yuni-wheat-50 opacity-60"
+                    ? "border-yuni-forest-300 bg-white text-yuni-forest-700 shadow-yuni-sm"
+                    : "border-yuni-wheat-300 bg-yuni-wheat-50 text-yuni-slate-300 opacity-60"
                 }`}
               >
-                <p className="font-medium text-yuni-slate-900">{b.name}</p>
-                <p className="mt-1 text-xs text-yuni-slate-600">
+                <p className="font-editorial text-base font-semibold text-yuni-slate-900">
+                  {b.name}
+                </p>
+                <p className="mt-1 font-body text-xs text-yuni-slate-600">
                   {on ? "Débloqué" : b.condition}
                 </p>
               </motion.div>
