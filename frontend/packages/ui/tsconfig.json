@@ -1,0 +1,9 @@
+{
+  "extends": "@yuni/tsconfig/react-library.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "rootDir": "src"
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
+}

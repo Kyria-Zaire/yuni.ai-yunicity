@@ -43,6 +43,15 @@ coverage.xml
 .DS_Store
 Thumbs.db
 
+# Frontend (monorepo — Next.js + Expo)
+frontend/node_modules/
+frontend/.pnpm-store/
+frontend/apps/web/.next/
+frontend/apps/web/playwright-report/
+frontend/apps/web/test-results/
+frontend/apps/mobile/.expo/
+frontend/.turbo/
+
 # Docker
 *.log
 

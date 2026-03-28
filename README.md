@@ -23,6 +23,38 @@ Microservice IA hyperlocal pour Yunicity — recommandations personnalisees, cha
      └─────────┘  └──────┘ └───────┘ └────────┘
 ```
 
+## Structure du projet
+
+```
+yuni.ai/
+├── app/              # Backend FastAPI Python 3.12
+├── frontend/         # Frontend Next.js + Expo (pnpm workspaces)
+│   ├── apps/
+│   │   ├── web/      # Next.js 14 (port 3000)
+│   │   └── mobile/   # Expo React Native
+│   └── packages/     # Design system, API client, auth
+├── tests/            # Tests backend
+├── scripts/          # Scripts utilitaires
+├── docs/             # Documentation, RGPD, changelog
+└── infra/            # Environnements et deploiement
+```
+
+## Démarrage rapide
+
+```bash
+# Backend
+pip install -e ".[dev]"
+uvicorn app.main:app --reload --port 8000
+```
+
+```bash
+# Frontend web (depuis la racine du depot)
+cd frontend
+pnpm install
+pnpm dev
+# → http://localhost:3000
+```
+
 ## Stack technique
 
 | Composant | Technologie | Role |

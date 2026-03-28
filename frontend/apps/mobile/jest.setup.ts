@@ -1,0 +1,1 @@
+/* Filtre les avertissements RN hors test si besoin. */

@@ -1,0 +1,23 @@
+{
+  "name": "@yuni/design-tokens",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "echo noop",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "echo noop"
+  },
+  "devDependencies": {
+    "@yuni/tsconfig": "workspace:*",
+    "typescript": "^5.7.2"
+  }
+}

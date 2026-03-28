@@ -1,0 +1,26 @@
+{
+  "name": "yuni-ai-frontend",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "turbo run dev --filter=@yuni/web --filter=@yuni/mobile",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "storybook": "pnpm --filter @yuni/web storybook"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "^18.3.12",
+      "@types/react-dom": "^18.3.7",
+      "find-up": "5.0.0",
+      "locate-path": "5.0.0"
+    }
+  }
+}
