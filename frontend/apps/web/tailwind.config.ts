@@ -50,9 +50,11 @@ const config: Config = {
         "yuni-2xl": spacing["2xl"],
       },
       boxShadow: {
+        "yuni-xs": shadows.xs,
         "yuni-sm": shadows.sm,
         "yuni-md": shadows.md,
         "yuni-lg": shadows.lg,
+        "yuni-glow": shadows["terracotta-glow"],
         "yuni-terracotta-glow": shadows["terracotta-glow"],
       },
       fontFamily: {
