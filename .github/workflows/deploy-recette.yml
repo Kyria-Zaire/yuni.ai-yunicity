@@ -12,18 +12,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Detect Railway token
+        id: railway
+        run: |
+          if [ -z "${{ secrets.RAILWAY_TOKEN_RECETTE }}" ]; then
+            echo "has_token=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::RAILWAY_TOKEN_RECETTE absent — job marque reussi sans deploy (configurez le secret pour Railway recette)."
+          else
+            echo "has_token=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Install Railway CLI
+        if: steps.railway.outputs.has_token == 'true'
         run: npm install -g @railway/cli
 
       - name: Deploy to Railway recette
+        if: steps.railway.outputs.has_token == 'true'
         run: railway up --service yuni-ai-recette --detach
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_RECETTE }}
 
       - name: Wait for deployment
+        if: steps.railway.outputs.has_token == 'true'
         run: sleep 45
 
       - name: Smoke test — health check
+        if: steps.railway.outputs.has_token == 'true'
         run: |
           response=$(curl -sf \
             https://yuni-ai-recette.up.railway.app/health \
@@ -39,6 +53,7 @@ jobs:
           "
 
       - name: Smoke test — endpoint disponible (sans JWT)
+        if: steps.railway.outputs.has_token == 'true'
         run: |
           status=$(curl -s -o /dev/null -w "%{http_code}" \
             -X POST https://yuni-ai-recette.up.railway.app/v1/recommend/engagement \
@@ -52,11 +67,11 @@ jobs:
           fi
 
       - name: Notify success
-        if: success()
+        if: success() && steps.railway.outputs.has_token == 'true'
         run: echo "Deploy recette reussi — $(date)"
 
       - name: Notify failure
-        if: failure()
+        if: failure() && steps.railway.outputs.has_token == 'true'
         run: |
           echo "Deploy recette ECHOUE"
           echo "Pour rollback : railway rollback --service yuni-ai-recette"
