@@ -46,3 +46,10 @@ class ExternalAPIError(YuniAIError):
             msg += f": {detail}"
         self.service = service
         super().__init__(msg)
+
+
+class BudgetExceededError(YuniAIError):
+    """Raised when Mistral API budget threshold is exceeded."""
+
+    def __init__(self, detail: str = "Budget exceeded") -> None:
+        super().__init__(detail)

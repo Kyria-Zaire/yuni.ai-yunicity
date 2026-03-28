@@ -72,6 +72,16 @@ class RedisService:
             logger.warning("redis_delete_failed", key=key)
             return False
 
+    async def incr(self, key: str) -> int:
+        """Increment an integer key. Returns 0 on error."""
+        try:
+            client = self._client()
+            result: int = await client.incr(key)
+            return result
+        except Exception:
+            logger.warning("redis_incr_failed", key=key)
+            return 0
+
     async def delete_pattern(self, pattern: str) -> int:
         """Delete all keys matching a pattern via SCAN. Returns count deleted."""
         deleted = 0

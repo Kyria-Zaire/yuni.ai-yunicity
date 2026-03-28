@@ -5,6 +5,7 @@ import os
 import random
 from datetime import UTC, datetime, timedelta
 
+from app.models.vitality import VitalityInputData
 from app.models.yunicity import Actor, Event, MapData, Tribe, UserPassport
 from app.services.yunicity_api import YunicityAPIService
 
@@ -235,6 +236,28 @@ class MockYunicityAPIService(YunicityAPIService):
         await _simulate_latency()
         return MapData(
             actors=REIMS_ACTORS,
+            tribes=REIMS_TRIBES,
             events=REIMS_EVENTS,
             zone=f"reims-{lat:.2f}-{lng:.2f}",
+        )
+
+    async def get_vitality_data(self, city: str, zone: str) -> VitalityInputData:
+        """Return mock vitality metrics for a zone."""
+        await _simulate_latency()
+        return VitalityInputData(
+            active_users_30d=280,
+            event_participation_rate=0.42,
+            avg_citizen_points=620.0,
+            posts_count_30d=95,
+            content_freshness_score=0.7,
+            content_diversity_score=0.65,
+            active_actors_count=18,
+            avg_actor_activity_score=6.5,
+            actor_category_diversity=0.72,
+            upcoming_events_30d=12,
+            avg_event_fill_rate=0.58,
+            events_per_week=2.5,
+            active_tribes_count=5,
+            avg_tribe_activity_rate=0.55,
+            avg_tribe_activity_score=7.2,
         )

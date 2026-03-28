@@ -10,8 +10,14 @@ build/
 
 # Virtual environments
 .venv/
+.venv-clean/
 venv/
 env/
+
+# Local audit artifacts
+audit.json
+audit-out.json
+audit-results*.json
 
 # Environment files
 .env

@@ -2,9 +2,10 @@
 
 from typing import Any
 
+import jwt
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jose import JWTError, jwt
+from jwt.exceptions import PyJWTError
 
 from app.core.config import Settings, get_settings
 from app.core.exceptions import AuthenticationError
@@ -36,7 +37,7 @@ async def verify_jwt(
             settings.JWT_PUBLIC_KEY,
             algorithms=["RS256"],
         )
-    except JWTError as exc:
+    except PyJWTError as exc:
         raise AuthenticationError(f"Invalid token: {exc}") from exc
 
     return payload

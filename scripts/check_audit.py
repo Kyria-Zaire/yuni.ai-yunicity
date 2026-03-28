@@ -4,6 +4,12 @@ import json
 import sys
 from pathlib import Path
 
+# Documented in docs/security/known-cve-exceptions.md — keep in sync with CI --ignore-vuln
+IGNORED_VULN_IDS: frozenset[str] = frozenset({
+    "CVE-2026-4539",
+    "GHSA-5239-wwwm-4pmq",
+})
+
 
 def main() -> None:
     if len(sys.argv) < 2:
@@ -28,6 +34,8 @@ def main() -> None:
         vulns = dep.get("vulns", [])
         for vuln in vulns:
             vuln_id = vuln.get("id", "unknown")
+            if vuln_id in IGNORED_VULN_IDS:
+                continue
             fix = vuln.get("fix_versions", [])
             aliases = vuln.get("aliases", [])
             desc = vuln.get("description", "")
