@@ -2,6 +2,20 @@
 
 **Activation** : création ou modification d’interface (composants, pages, tokens, layout).
 
+## Skill actif : Editorial × Yuni AI
+
+**OVERRIDES TOKENS** (obligatoires — ne jamais utiliser les valeurs Editorial brutes) :
+
+| Editorial token   | Yuni AI override           |
+|-------------------|----------------------------|
+| Gelasio           | Cormorant Garamond         |
+| Ubuntu Mono       | JetBrains Mono             |
+| primary #111111   | #C1440E (terracotta-500)   |
+| surface #FFFFFF   | #FDFAF5 (wheat-50)         |
+| text #111827      | #1A2C47 (slate-900)        |
+| secondary #f1f1   | #F7F0E0 (wheat-100)        |
+| 8pt grid          | GARDER                     |
+
 ## Principes
 
 - Composants **production-grade** (React, Vue ou stack du dépôt) : props typées, états explicites, erreurs gérées.

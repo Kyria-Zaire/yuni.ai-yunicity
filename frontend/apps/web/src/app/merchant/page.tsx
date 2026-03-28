@@ -2,9 +2,10 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMerchantGenerateMutation } from "@yuni/api-client/react";
-import type { ContentType, MerchantContentRequest } from "@yuni/api-client";
+import { YuniAPIError, type ContentType, type MerchantContentRequest } from "@yuni/api-client";
 import { useAuth } from "@yuni/auth";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { YuniButton, YuniCard, useYuniToast } from "@yuni/ui";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -102,7 +103,23 @@ const TEMPLATES: {
 export default function MerchantPage() {
   const { user } = useAuth();
   const mut = useMerchantGenerateMutation();
+  const { show: showToast } = useYuniToast();
+  const lastToastErr = useRef<string | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+
+  useEffect(() => {
+    if (!mut.isError || !mut.error) {
+      lastToastErr.current = null;
+      return;
+    }
+    const msg =
+      mut.error instanceof YuniAPIError && mut.error.status === 401
+        ? "Connecte-toi ou renouvelle ta session pour générer du contenu."
+        : "Erreur API — vérifie la connexion et le backend.";
+    if (lastToastErr.current === msg) return;
+    lastToastErr.current = msg;
+    showToast({ variant: "error", message: msg });
+  }, [mut.isError, mut.error, showToast]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -222,25 +239,34 @@ export default function MerchantPage() {
             ))}
           </div>
 
-          <form onSubmit={onSubmit} className="space-y-4 rounded-yuni-lg border border-yuni-wheat-100 bg-white p-6 shadow-yuni-sm">
-            <label className="block space-y-1 text-sm">
-              <span className="text-yuni-slate-600">Nom du commerce</span>
+          <form
+            onSubmit={onSubmit}
+            className="space-y-4 rounded-yuni-lg border border-yuni-wheat-300/60 bg-white p-6 shadow-yuni-sm"
+          >
+            <label className="block space-y-1">
+              <span className="font-body text-sm font-medium text-yuni-slate-700">
+                Nom du commerce
+              </span>
               <input
-                className="w-full rounded-yuni-md border border-yuni-wheat-200 px-3 py-2"
+                className="w-full rounded-md border border-yuni-wheat-300 bg-white px-4 py-3 font-body text-sm outline-none transition-colors focus:border-yuni-terracotta-500 focus:ring-2 focus:ring-yuni-terracotta-500/20"
                 {...form.register("businessName")}
               />
             </label>
-            <label className="block space-y-1 text-sm">
-              <span className="text-yuni-slate-600">Type</span>
+            <label className="block space-y-1">
+              <span className="font-body text-sm font-medium text-yuni-slate-700">
+                Type
+              </span>
               <input
-                className="w-full rounded-yuni-md border border-yuni-wheat-200 px-3 py-2"
+                className="w-full rounded-md border border-yuni-wheat-300 bg-white px-4 py-3 font-body text-sm outline-none transition-colors focus:border-yuni-terracotta-500 focus:ring-2 focus:ring-yuni-terracotta-500/20"
                 {...form.register("businessType")}
               />
             </label>
-            <label className="block space-y-1 text-sm">
-              <span className="text-yuni-slate-600">Type de contenu</span>
+            <label className="block space-y-1">
+              <span className="font-body text-sm font-medium text-yuni-slate-700">
+                Type de contenu
+              </span>
               <select
-                className="w-full rounded-yuni-md border border-yuni-wheat-200 px-3 py-2"
+                className="w-full rounded-md border border-yuni-wheat-300 bg-white px-4 py-3 font-body text-sm outline-none transition-colors focus:border-yuni-terracotta-500 focus:ring-2 focus:ring-yuni-terracotta-500/20"
                 {...form.register("contentType")}
               >
                 {CONTENT_OPTIONS.map((o) => (
@@ -250,19 +276,23 @@ export default function MerchantPage() {
                 ))}
               </select>
             </label>
-            <label className="block space-y-1 text-sm">
-              <span className="text-yuni-slate-600">Sujet</span>
+            <label className="block space-y-1">
+              <span className="font-body text-sm font-medium text-yuni-slate-700">
+                Sujet
+              </span>
               <textarea
                 rows={4}
-                className="w-full rounded-yuni-md border border-yuni-wheat-200 px-3 py-2"
+                className="w-full rounded-md border border-yuni-wheat-300 bg-white px-4 py-3 font-body text-sm outline-none transition-colors focus:border-yuni-terracotta-500 focus:ring-2 focus:ring-yuni-terracotta-500/20"
                 placeholder="Décrivez votre offre ou actualité…"
                 {...form.register("topic")}
               />
             </label>
-            <label className="block space-y-1 text-sm">
-              <span className="text-yuni-slate-600">Ton</span>
+            <label className="block space-y-1">
+              <span className="font-body text-sm font-medium text-yuni-slate-700">
+                Ton
+              </span>
               <select
-                className="w-full rounded-yuni-md border border-yuni-wheat-200 px-3 py-2"
+                className="w-full rounded-md border border-yuni-wheat-300 bg-white px-4 py-3 font-body text-sm outline-none transition-colors focus:border-yuni-terracotta-500 focus:ring-2 focus:ring-yuni-terracotta-500/20"
                 {...form.register("tone")}
               >
                 <option value="professionnel">🧑‍💼 professionnel</option>
@@ -272,30 +302,34 @@ export default function MerchantPage() {
                 <option value="urgent">⚡ urgent</option>
               </select>
             </label>
-            <label className="flex items-center gap-2 text-sm">
+            <label className="flex items-center gap-2 font-body text-sm text-yuni-slate-700">
               <input type="checkbox" {...form.register("includeEmoji")} />
               Inclure des émojis
             </label>
-            <label className="block space-y-1 text-sm">
-              <span className="text-yuni-slate-600">Public cible (optionnel)</span>
+            <label className="block space-y-1">
+              <span className="font-body text-sm font-medium text-yuni-slate-700">
+                Public cible (optionnel)
+              </span>
               <input
-                className="w-full rounded-yuni-md border border-yuni-wheat-200 px-3 py-2"
+                className="w-full rounded-md border border-yuni-wheat-300 bg-white px-4 py-3 font-body text-sm outline-none transition-colors focus:border-yuni-terracotta-500 focus:ring-2 focus:ring-yuni-terracotta-500/20"
                 {...form.register("targetAudience")}
               />
             </label>
-            <button
+            <YuniButton
               type="submit"
-              disabled={mut.isPending}
-              className="w-full rounded-yuni-md bg-yuni-terracotta-500 py-3 text-sm font-semibold text-white hover:bg-yuni-terracotta-600 disabled:opacity-50"
+              variant="primary"
+              size="lg"
+              loading={mut.isPending}
+              className="w-full"
             >
-              {mut.isPending ? "Génération…" : "Générer avec Yuni AI"}
-            </button>
+              Générer avec Yuni AI
+            </YuniButton>
           </form>
         </div>
 
         <div className="space-y-6">
           {primary ? (
-            <div className="rounded-yuni-lg border border-yuni-wheat-100 bg-white p-6 shadow-yuni-sm">
+            <YuniCard variant="featured" className="shadow-yuni-sm">
               <div className="mb-2 flex items-center justify-between gap-2">
                 <span className="rounded-yuni-sm bg-yuni-wheat-100 px-2 py-0.5 text-xs font-medium text-yuni-slate-700">
                   Généré par Yuni AI
@@ -311,7 +345,7 @@ export default function MerchantPage() {
                 </button>
               </div>
               <textarea
-                className="mt-2 w-full rounded-yuni-md border border-yuni-wheat-200 px-3 py-2 text-sm"
+                className="mt-2 w-full rounded-md border border-yuni-wheat-300 bg-white px-4 py-3 font-body text-sm outline-none focus:border-yuni-terracotta-500 focus:ring-2 focus:ring-yuni-terracotta-500/20"
                 rows={8}
                 value={editedText}
                 onChange={(e) => setEditedText(e.target.value)}
@@ -330,7 +364,7 @@ export default function MerchantPage() {
                   📅 Mardi 18h-20h recommandé pour ce type de contenu
                 </p>
               )}
-            </div>
+            </YuniCard>
           ) : (
             <p className="text-sm text-yuni-slate-600">
               Le résultat apparaîtra ici après génération.
@@ -379,19 +413,13 @@ export default function MerchantPage() {
                         tag.startsWith("#") ? tag : `#${tag}`,
                       )
                     }
-                    className="rounded-yuni-full bg-yuni-slate-100 px-3 py-1 text-xs text-yuni-slate-700 hover:bg-yuni-slate-200"
+                    className="rounded-full bg-yuni-terracotta-50 px-3 py-1 text-xs font-medium text-yuni-terracotta-700 transition-colors hover:bg-yuni-terracotta-100"
                   >
                     #{tag.replace(/^#/, "")}
                   </button>
                 ))}
               </div>
             </div>
-          ) : null}
-
-          {mut.isError ? (
-            <p className="text-sm text-yuni-terracotta-700">
-              Erreur API — vérifiez la connexion et le JWT.
-            </p>
           ) : null}
         </div>
       </div>

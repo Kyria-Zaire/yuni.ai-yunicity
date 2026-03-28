@@ -36,9 +36,9 @@ export function XPBar({
           {currentXp} / {nextLevelXp} XP
         </span>
       </div>
-      <div className="h-3 w-full overflow-hidden rounded-full bg-yuni-wheat-100">
+      <div className="h-2 w-full overflow-hidden rounded-full bg-yuni-wheat-100">
         <motion.div
-          className="h-full rounded-full bg-yuni-forest-500"
+          className="h-full rounded-full bg-gradient-to-r from-yuni-terracotta-300 to-yuni-terracotta-500"
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
           transition={{ type: "spring", stiffness: 80, damping: 18 }}

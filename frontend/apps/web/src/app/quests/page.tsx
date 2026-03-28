@@ -8,15 +8,23 @@ import { useYuniAIClient } from "@yuni/api-client/react";
 import { useAuth } from "@yuni/auth";
 import { YuniButton, YuniCard } from "@yuni/ui";
 
+import { apiLoadErrorMessage } from "@/lib/api-query-errors";
 import { DEFAULT_CITY } from "@/lib/constants";
 
 import type { Quest, QuestDifficulty } from "@yuni/api-client";
 
-const diffStyle: Record<QuestDifficulty, string> = {
-  easy: "bg-yuni-forest-100 text-yuni-forest-800",
-  medium: "bg-yuni-slate-100 text-yuni-slate-800",
-  hard: "bg-yuni-terracotta-100 text-yuni-terracotta-900",
-  epic: "bg-purple-100 text-purple-900",
+const diffBadge: Record<QuestDifficulty, string> = {
+  easy: "bg-yuni-forest-50 text-yuni-forest-700 ring-1 ring-yuni-forest-300",
+  medium: "bg-yuni-slate-50 text-yuni-slate-700 ring-1 ring-yuni-slate-200",
+  hard: "bg-yuni-terracotta-50 text-yuni-terracotta-700 ring-1 ring-yuni-terracotta-200",
+  epic: "bg-yuni-slate-900 text-yuni-wheat-50 ring-1 ring-yuni-slate-900",
+};
+
+const diffBorder: Record<QuestDifficulty, string> = {
+  easy: "border-l-yuni-forest-500",
+  medium: "border-l-yuni-slate-500",
+  hard: "border-l-yuni-terracotta-500",
+  epic: "border-l-yuni-slate-900",
 };
 
 function QuestIllustration({ category }: { category: string }) {
@@ -93,6 +101,10 @@ export default function QuestsPage() {
 
       {!isAuthenticated ? (
         <p className="text-yuni-slate-600">Connecte-toi pour voir les quêtes.</p>
+      ) : quests.isError ? (
+        <p className="rounded-yuni-md border border-yuni-wheat-100 bg-yuni-wheat-50/80 p-4 text-sm text-yuni-slate-500">
+          {apiLoadErrorMessage(quests.error)}
+        </p>
       ) : quests.isLoading ? (
         <div className="grid gap-4 md:grid-cols-2">
           {[1, 2, 3, 4].map((i) => (
@@ -108,17 +120,18 @@ export default function QuestsPage() {
             <YuniCard
               key={q.id}
               variant="elevated"
+              className={`border-l-[3px] ${diffBorder[q.difficulty]}`}
               header={
                 <span
-                  className={`inline-block rounded-full px-2 py-0.5 text-xs ${diffStyle[q.difficulty]}`}
+                  className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-body font-medium capitalize ${diffBadge[q.difficulty]}`}
                 >
                   {q.difficulty}
                 </span>
               }
               footer={
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-yuni-forest-700">
-                    +{q.xp_reward} XP · {q.estimated_duration}
+                  <span className="font-body font-bold text-yuni-terracotta-500">
+                    ＋{q.xp_reward} XP · {q.estimated_duration}
                   </span>
                   <YuniButton
                     size="sm"
@@ -131,7 +144,9 @@ export default function QuestsPage() {
               }
             >
               <QuestIllustration category={q.category} />
-              <p className="mt-3 line-clamp-2 font-medium">{q.title}</p>
+              <p className="mt-3 line-clamp-2 font-editorial text-[22px] font-semibold leading-snug text-yuni-slate-900">
+                {q.title}
+              </p>
               <p className="mt-1 line-clamp-2 text-sm text-yuni-slate-600">
                 {q.description.slice(0, 50)}
                 {q.description.length > 50 ? "…" : ""}

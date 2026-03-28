@@ -8,6 +8,7 @@ import { useYuniAIClient } from "@yuni/api-client/react";
 import { useAuth } from "@yuni/auth";
 import { VitalityGauge, YuniCard } from "@yuni/ui";
 
+import { apiLoadErrorMessage } from "@/lib/api-query-errors";
 import { DEFAULT_CITY, DEFAULT_GEO, DEFAULT_ZONE } from "@/lib/constants";
 
 import type { RecommendationOutput } from "@yuni/api-client";
@@ -84,6 +85,10 @@ export default function FeedPage() {
         <h1 className="font-editorial text-3xl text-yuni-slate-900">Feed</h1>
         {!isAuthenticated ? (
           <p className="text-sm text-yuni-slate-600">Connexion requise.</p>
+        ) : infinite.isError ? (
+          <p className="rounded-yuni-md border border-yuni-wheat-100 bg-yuni-wheat-50/80 p-4 text-sm text-yuni-slate-500">
+            {apiLoadErrorMessage(infinite.error)}
+          </p>
         ) : infinite.isLoading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (

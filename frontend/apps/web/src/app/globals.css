@@ -2,25 +2,120 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Polices : chargées via next/font dans layout.tsx (--font-editorial, --font-body, --font-mono).
+ * Ne pas dupliquer avec @import Google Fonts ici.
+ */
+
 :root {
-  --background: #fdfaf5;
-  --foreground: #1a1a18;
+  /* Typographie (alignée layout Next — noms de variables partagés) */
+  --font-editorial: "Cormorant Garamond", Georgia, serif;
+  --font-body: "Outfit", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Couleurs territoire Yuni AI */
+  --color-terracotta-50: #fdf0eb;
+  --color-terracotta-100: #fad5c4;
+  --color-terracotta-300: #f0946a;
+  --color-terracotta-500: #c1440e;
+  --color-terracotta-700: #8b2f08;
+  --color-terracotta-900: #4a1604;
+
+  --color-slate-50: #f0f2f4;
+  --color-slate-100: #d4dae2;
+  --color-slate-300: #8e9bb0;
+  --color-slate-500: #4a6fa5;
+  --color-slate-700: #2e4a75;
+  --color-slate-900: #1a2c47;
+
+  --color-forest-50: #ebf5ee;
+  --color-forest-300: #72b885;
+  --color-forest-500: #2d6a4f;
+  --color-forest-700: #1b4733;
+
+  --color-wheat-50: #fdfaf5;
+  --color-wheat-100: #f7f0e0;
+  --color-wheat-300: #edd9a8;
+
+  /* Surfaces */
+  --surface-page: var(--color-wheat-50);
+  --surface-card: #ffffff;
+  --surface-raised: #ffffff;
+
+  /* Texte */
+  --text-primary: var(--color-slate-900);
+  --text-secondary: var(--color-slate-500);
+  --text-muted: var(--color-slate-300);
+  --text-accent: var(--color-terracotta-500);
+
+  /* 8pt grid (Editorial) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-16: 64px;
+
+  /* Shadows (Editorial — pas neumorphic) */
+  --shadow-xs: 0 1px 2px rgba(26, 44, 71, 0.04);
+  --shadow-sm: 0 1px 4px rgba(26, 44, 71, 0.06);
+  --shadow-md: 0 4px 12px rgba(26, 44, 71, 0.08);
+  --shadow-lg: 0 8px 24px rgba(26, 44, 71, 0.1);
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  --background: var(--surface-page);
+  --foreground: var(--text-primary);
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  background-color: var(--surface-page);
+  color: var(--text-primary);
   font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-editorial), Georgia, serif;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-primary);
 }
 
 *:focus-visible {
-  outline: 2px solid #c1440e;
+  outline: 2px solid var(--color-terracotta-500);
   outline-offset: 3px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
 *:focus:not(:focus-visible) {
   outline: none;
+}
+
+@keyframes yuni-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.yuni-toast-item {
+  animation: yuni-toast-in 0.3s ease-out both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -30,5 +125,9 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .yuni-toast-item {
+    animation: none;
   }
 }

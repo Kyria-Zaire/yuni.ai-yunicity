@@ -4,7 +4,7 @@ test.describe("Accueil", () => {
   test("page d'accueil charge correctement", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveTitle(/Yuni AI/);
-    await expect(page.getByText("Yuni connaît ta ville.")).toBeVisible();
+    await expect(page.getByText(/Ta ville te reconnaît/i)).toBeVisible();
     await expect(
       page.getByRole("button", { name: /Activer Hey Yuni/i }),
     ).toBeVisible();

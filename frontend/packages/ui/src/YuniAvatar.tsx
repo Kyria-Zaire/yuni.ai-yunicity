@@ -2,14 +2,6 @@
 
 import { cn } from "./utils";
 
-const levelColors: Record<number, string> = {
-  1: "bg-yuni-wheat-300",
-  2: "bg-yuni-slate-300",
-  3: "bg-yuni-forest-300",
-  4: "bg-yuni-terracotta-300",
-  5: "bg-yuni-aiPulse",
-};
-
 export interface YuniAvatarProps {
   name: string;
   imageUrl?: string | null;
@@ -31,12 +23,10 @@ export function YuniAvatar({
   level = 1,
   className,
 }: YuniAvatarProps) {
-  const ring = levelColors[Math.min(5, Math.max(1, level))] ?? levelColors[1];
   return (
     <div
       className={cn(
-        "relative inline-flex h-12 w-12 items-center justify-center overflow-hidden rounded-full text-sm font-semibold text-yuni-slate-900",
-        ring,
+        "relative inline-flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-yuni-terracotta-300 bg-yuni-terracotta-500/20 font-editorial text-2xl font-semibold text-yuni-slate-900",
         className,
       )}
       aria-label={name}
@@ -45,10 +35,10 @@ export function YuniAvatar({
         // eslint-disable-next-line @next/next/no-img-element
         <img src={imageUrl} alt="" className="h-full w-full object-cover" />
       ) : (
-        <span>{initials(name)}</span>
+        <span className="select-none">{initials(name)}</span>
       )}
       <span
-        className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-yuni-forest-500"
+        className="absolute bottom-0.5 right-0.5 h-3 w-3 rounded-full border-2 border-white bg-yuni-forest-500"
         title={`Niveau ${level}`}
       />
     </div>
