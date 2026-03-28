@@ -6,23 +6,24 @@ import {
   Outfit,
 } from "next/font/google";
 
+import { AxeInit } from "@/components/dev/AxeInit";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 
 import "./globals.css";
 import { Providers } from "./providers";
 
-const editorial = Cormorant_Garamond({
+const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
+  weight: ["400", "600", "700"],
   variable: "--font-editorial",
   display: "swap",
-  weight: ["400", "600", "700"],
 });
 
-const body = Outfit({
+const outfit = Outfit({
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
   variable: "--font-body",
   display: "swap",
-  weight: ["400", "500", "600", "700"],
 });
 
 const mono = JetBrains_Mono({
@@ -36,7 +37,7 @@ export const metadata: Metadata = {
   title: "Yuni AI — Ton assistant territorial",
   description:
     "L'IA qui connaît ta ville. Recommandations, vitalité, quêtes citoyennes.",
-  manifest: "/manifest.webmanifest",
+  manifest: "/manifest.json",
   openGraph: {
     title: "Yuni AI",
     description: "La présence vivante de ta ville.",
@@ -56,10 +57,12 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="fr">
-      <body
-        className={`${editorial.variable} ${body.variable} ${mono.variable} min-h-screen font-body antialiased`}
-      >
+    <html
+      lang="fr"
+      className={`${cormorant.variable} ${outfit.variable} ${mono.variable}`}
+    >
+      <body className="min-h-screen font-body antialiased">
+        <AxeInit />
         <Providers>
           <SiteHeader />
           {children}
