@@ -21,7 +21,24 @@ typecheck:
 audit:
 	pip-audit
 
+predeploy:
+	python scripts/pre_deploy_check.py
+
 check: lint typecheck audit
+
+seed-qdrant:
+	python scripts/seed_qdrant.py
+
+benchmark:
+	python scripts/benchmark_quality.py
+
+precompute-vitality:
+	python scripts/precompute_vitality.py
+
+load-test:
+	k6 run infra/load-testing/recommend.js \
+		--env BASE_URL=https://yuni-ai-recette.up.railway.app \
+		--env TEST_JWT=$(TEST_JWT)
 
 build:
 	docker build -t yuni-ai -f infra/docker/Dockerfile .

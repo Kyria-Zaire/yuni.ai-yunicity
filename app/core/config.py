@@ -27,9 +27,9 @@ class Settings(BaseSettings):
     )
 
     # --- Application ---
-    YUNI_ENV: Literal["dev", "recette", "preprod", "prod"] = "dev"
+    YUNI_ENV: Literal["dev", "recette", "recette_mock", "preprod", "prod"] = "dev"
     APP_NAME: str = "yuni-ai"
-    APP_VERSION: str = "0.1.0"
+    APP_VERSION: str = "2.0.0"
     LOG_LEVEL: str = "info"
 
     # --- AI Providers ---
@@ -46,14 +46,39 @@ class Settings(BaseSettings):
     RATE_LIMIT_PER_MINUTE: int = 20
     ANONYMIZATION_SALT: SecretStr = SecretStr("change-me-in-prod")
 
+    # --- Qdrant ---
+    QDRANT_URL: str = "http://localhost:6333"
+    QDRANT_API_KEY: SecretStr | None = None
+
     # --- Yunicity APIs ---
     YUNICITY_API_BASE_URL: str = "http://localhost:4000"
     YUNICITY_SERVICE_TOKEN: SecretStr = SecretStr("mock-token-dev")
+
+    # --- Rollout ---
+    ROLLOUT_PERCENTAGE: int = 10
+    ROLLOUT_CITIES: str = "reims"
+    ADMIN_BYPASS_TOKEN: SecretStr = SecretStr("")
+    INTERNAL_METRICS_TOKEN: SecretStr = SecretStr("")
 
     # --- Stripe ---
     STRIPE_SECRET_KEY: SecretStr = SecretStr("sk_test_mock")
     STRIPE_WEBHOOK_SECRET: SecretStr = SecretStr("whsec_mock")
     STRIPE_PUBLISHABLE_KEY: str = "pk_test_mock"
+
+    # --- AWS (Polly TTS) ---
+    AWS_ACCESS_KEY_ID: SecretStr = SecretStr("")
+    AWS_SECRET_ACCESS_KEY: SecretStr = SecretStr("")
+    AWS_REGION: str = "eu-west-1"
+    TTS_VOICE_ID: str = "Lea"
+    TTS_CACHE_ENABLED: bool = True
+    TTS_MAX_CHARS: int = 3000
+
+    # --- Voice (STT Whisper) ---
+    WHISPER_LOCAL: bool = False
+
+    # --- Firebase (Notifications) ---
+    FIREBASE_CREDENTIALS_JSON: str = ""
+    FIREBASE_PROJECT_ID: str = ""
 
     @property
     def is_prod(self) -> bool:
@@ -74,6 +99,11 @@ class Settings(BaseSettings):
     def cors_origins_list(self) -> list[str]:
         """Origins parsed from CORS_ORIGINS CSV."""
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
+
+    @property
+    def rollout_cities_list(self) -> list[str]:
+        """Cities parsed from ROLLOUT_CITIES CSV."""
+        return [c.strip() for c in self.ROLLOUT_CITIES.split(",") if c.strip()]
 
 
 @lru_cache(maxsize=1)
