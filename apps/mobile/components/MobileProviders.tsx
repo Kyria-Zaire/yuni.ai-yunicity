@@ -1,3 +1,4 @@
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useRef, useState, type ReactNode } from "react";
 
@@ -25,7 +26,9 @@ export function MobileProviders({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <YuniBridge>{children}</YuniBridge>
+        <YuniBridge>
+          <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
+        </YuniBridge>
       </AuthProvider>
     </QueryClientProvider>
   );

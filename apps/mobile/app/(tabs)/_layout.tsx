@@ -2,8 +2,6 @@ import { Tabs } from "expo-router";
 import { Compass, Map, Mic, User } from "lucide-react-native";
 import { View } from "react-native";
 
-import { YuniVoiceFAB } from "@/components/YuniVoiceFAB";
-
 export default function TabsLayout() {
   return (
     <View style={{ flex: 1 }}>
@@ -50,7 +48,6 @@ export default function TabsLayout() {
           }}
         />
       </Tabs>
-      <YuniVoiceFAB />
     </View>
   );
 }

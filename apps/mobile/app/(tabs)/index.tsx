@@ -15,6 +15,7 @@ import {
   View,
 } from "react-native";
 
+import { YuniVoiceFAB } from "@/components/YuniVoiceFAB";
 import { DEFAULT_CITY_SLUG, DEFAULT_ZONE } from "@/lib/constants";
 
 function SkeletonBlock({ h }: { h: number }) {
@@ -55,6 +56,7 @@ export default function HomeScreen() {
   const previewQuest = quests.data?.[0];
 
   return (
+    <View style={{ flex: 1 }}>
     <ScrollView
       style={styles.scroll}
       contentContainerStyle={styles.scrollContent}
@@ -148,6 +150,8 @@ export default function HomeScreen() {
         <ActivityIndicator color="#C1440E" style={{ marginTop: 16 }} />
       ) : null}
     </ScrollView>
+    <YuniVoiceFAB />
+    </View>
   );
 }
 

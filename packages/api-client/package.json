@@ -1,0 +1,33 @@
+{
+  "name": "@yuni/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    },
+    "./react": {
+      "types": "./src/react/index.ts",
+      "import": "./src/react/index.ts"
+    }
+  },
+  "scripts": {
+    "lint": "echo noop",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": "^5",
+    "react": "^18 || ^19"
+  },
+  "devDependencies": {
+    "@tanstack/react-query": "^5.62.8",
+    "@types/react": "^18.3.12",
+    "@yuni/tsconfig": "workspace:*",
+    "react": "^18.3.1",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

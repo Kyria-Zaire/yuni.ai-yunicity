@@ -2,10 +2,13 @@ import { useAuth } from "@yuni/auth";
 import { router } from "expo-router";
 import { Pressable, Text, View } from "react-native";
 
+import { YuniVoiceFAB } from "@/components/YuniVoiceFAB";
+
 export default function ProfileScreen() {
   const { isAuthenticated, logout, user } = useAuth();
 
   return (
+    <View style={{ flex: 1 }}>
     <View style={{ flex: 1, padding: 20, backgroundColor: "#FDFAF5" }}>
       <Text style={{ fontSize: 20, fontWeight: "600", color: "#1A2C47" }}>
         Moi
@@ -40,6 +43,8 @@ export default function ProfileScreen() {
           <Text style={{ color: "#FDFAF5", fontWeight: "600" }}>Déconnexion</Text>
         </Pressable>
       )}
+    </View>
+    <YuniVoiceFAB />
     </View>
   );
 }
