@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, Query, Request
 from app.core.logging import get_logger
 from app.core.security import verify_jwt
 from app.models.yunicity import MapData
+from app.services.yunicity_api import YunicityAPIService
 
 logger = get_logger("map_router")
 
@@ -31,8 +32,7 @@ async def get_map_data(
     city: str = Query(..., min_length=2, max_length=100),
     _jwt_payload: dict[str, Any] = Depends(verify_jwt),
 ) -> MapData:
-    yunicity = request.app.state.yunicity_service
+    yunicity: YunicityAPIService = request.app.state.yunicity_service
     key = city.strip().lower()
     lat, lng = _CITY_CENTERS.get(key, _CITY_CENTERS["reims"])
-    data = await yunicity.get_map_data(lat, lng)
-    return data
+    return await yunicity.get_map_data(lat, lng)
