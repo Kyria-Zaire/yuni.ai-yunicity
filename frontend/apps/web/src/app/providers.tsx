@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { YuniAIClient } from "@yuni/api-client";
 import { YuniAIProvider } from "@yuni/api-client/react";
 import { AuthProvider, useAuth } from "@yuni/auth";
+import { YuniToastProvider } from "@yuni/ui";
 
 const defaultApiBase =
   process.env.NEXT_PUBLIC_YUNI_API_URL ?? "http://127.0.0.1:8000";
@@ -38,7 +39,9 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <YuniBridge>{children}</YuniBridge>
+        <YuniToastProvider>
+          <YuniBridge>{children}</YuniBridge>
+        </YuniToastProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

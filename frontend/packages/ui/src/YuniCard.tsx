@@ -1,46 +1,51 @@
-"use client";
-
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 import type { HTMLAttributes, ReactNode } from "react";
 
-import { cn } from "./utils";
-
-const variants = {
-  default: "bg-yuni-wheat-50 border border-yuni-wheat-100",
-  elevated: "bg-white shadow-yuni-md",
-  bordered: "border-2 border-yuni-slate-100 bg-white",
-} as const;
+export type YuniCardVariant = "default" | "elevated" | "bordered" | "featured";
 
 export interface YuniCardProps extends HTMLAttributes<HTMLDivElement> {
-  variant?: keyof typeof variants;
+  variant?: YuniCardVariant;
   header?: ReactNode;
   footer?: ReactNode;
+  children?: ReactNode;
 }
 
+const variantClasses: Record<YuniCardVariant, string> = {
+  default:
+    "rounded-lg border border-yuni-wheat-300/60 bg-white shadow-yuni-sm transition-shadow duration-200 hover:shadow-yuni-md",
+  elevated:
+    "rounded-lg border border-yuni-wheat-300/60 bg-white shadow-yuni-md transition-shadow duration-200 hover:shadow-yuni-lg",
+  bordered:
+    "rounded-lg border-2 border-yuni-terracotta-100 bg-white shadow-none",
+  featured:
+    "rounded-lg border border-yuni-wheat-300/60 border-l-4 border-l-yuni-terracotta-500 bg-white pl-4 shadow-yuni-sm transition-shadow duration-200 hover:shadow-yuni-md",
+};
+
 export function YuniCard({
-  className,
   variant = "default",
   header,
   footer,
+  className,
   children,
-  ...props
+  ...rest
 }: YuniCardProps) {
   return (
     <div
-      className={cn(
-        "overflow-hidden rounded-yuni-lg",
-        variants[variant],
+      className={twMerge(
+        clsx("flex flex-col overflow-hidden", variantClasses[variant]),
         className,
       )}
-      {...props}
+      {...rest}
     >
       {header ? (
-        <div className="border-b border-yuni-wheat-100 px-4 py-3 font-editorial text-lg text-yuni-slate-900">
+        <div className="border-b border-yuni-wheat-300/50 px-4 py-3 font-body text-sm font-medium text-yuni-slate-700">
           {header}
         </div>
       ) : null}
-      <div className="px-4 py-4">{children}</div>
+      <div className="flex-1 px-4 py-4">{children}</div>
       {footer ? (
-        <div className="border-t border-yuni-wheat-100 px-4 py-3 text-sm text-yuni-slate-600">
+        <div className="border-t border-yuni-wheat-300/50 px-4 py-3 text-sm text-yuni-slate-500">
           {footer}
         </div>
       ) : null}
