@@ -36,6 +36,20 @@ logger = get_logger("voice_router")
 router = APIRouter(tags=["voice"])
 
 
+def _websocket_origin_allowed(origin: str | None, settings: Any) -> bool:
+    """Clients sans Origin (natifs) ; sinon aligné sur CORS + assouplissement dev."""
+    if not origin:
+        return True
+    if origin in settings.cors_origins_list:
+        return True
+    if settings.is_dev:
+        if origin.startswith(("http://localhost:", "http://127.0.0.1:")):
+            return True
+        if origin.startswith("exp://"):
+            return True
+    return False
+
+
 def _get_stt_service(request: Request) -> STTService:
     svc: STTService = request.app.state.stt_service
     return svc
@@ -136,6 +150,11 @@ async def voice_websocket(
         user_id_hash: str = payload.get("sub", "")
     except AuthenticationError:
         await websocket.close(code=4001, reason="Unauthorized")
+        return
+
+    origin = websocket.headers.get("origin")
+    if not _websocket_origin_allowed(origin, settings):
+        await websocket.close(code=4403, reason="Origin not allowed")
         return
 
     await websocket.accept()

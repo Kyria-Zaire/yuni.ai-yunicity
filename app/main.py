@@ -34,6 +34,7 @@ from app.routers import federation as federation_router_mod
 from app.routers import gamification as gamification_router_mod
 from app.routers import health
 from app.routers import leaderboard as leaderboard_router_mod
+from app.routers import map as map_router_mod
 from app.routers import merchant as merchant_router_mod
 from app.routers import onboarding as onboarding_router_mod
 from app.routers import partner as partner_router_mod
@@ -245,7 +246,16 @@ def create_app() -> FastAPI:
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
-        response.headers["Content-Security-Policy"] = "default-src 'none'"
+        # Swagger/ReDoc chargent CSS/JS externes + inline : incompatible avec default-src 'none'
+        path = request.url.path
+        openapi_ui = not settings.is_prod and (
+            path == "/docs"
+            or path.startswith("/docs/")
+            or path == "/redoc"
+            or path.startswith("/redoc/")
+        )
+        if not openapi_ui:
+            response.headers["Content-Security-Policy"] = "default-src 'none'"
         if settings.is_prod:
             response.headers["Strict-Transport-Security"] = (
                 "max-age=31536000; includeSubDomains"
@@ -344,6 +354,19 @@ def create_app() -> FastAPI:
         )
         return JSONResponse(status_code=500, content=detail.model_dump())
 
+    @app.get("/", tags=["health"])
+    async def root() -> dict[str, str]:
+        """Point d'entrée navigateur : l'API n'expose pas de page HTML sur `/`."""
+        payload: dict[str, str] = {
+            "service": "Yuni AI API",
+            "version": settings.APP_VERSION,
+            "health": "/health",
+        }
+        if not settings.is_prod:
+            payload["docs"] = "/docs"
+            payload["openapi"] = "/openapi.json"
+        return payload
+
     app.include_router(health.router)
     app.include_router(recommend_router_mod.router)
     app.include_router(rgpd_router_mod.router)
@@ -358,6 +381,7 @@ def create_app() -> FastAPI:
     app.include_router(gamification_router_mod.router)
     app.include_router(quests_router_mod.router)
     app.include_router(leaderboard_router_mod.router)
+    app.include_router(map_router_mod.router)
     app.include_router(cities_router_mod.router)
     app.include_router(sentiment_router_mod.router)
     app.include_router(budget_router_mod.router)

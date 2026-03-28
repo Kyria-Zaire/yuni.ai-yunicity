@@ -42,7 +42,12 @@ class Settings(BaseSettings):
     # --- Security ---
     JWT_PUBLIC_KEY: str = ""
     ALLOWED_HOSTS: str = "localhost,127.0.0.1"
-    CORS_ORIGINS: str = "http://localhost:3000"
+    CORS_ORIGINS: str = (
+        "http://localhost:3000,"
+        "http://localhost:8081,"
+        "http://127.0.0.1:8081,"
+        "exp://127.0.0.1:8081"
+    )
     RATE_LIMIT_PER_MINUTE: int = 20
     ANONYMIZATION_SALT: SecretStr = SecretStr("change-me-in-prod")
 
