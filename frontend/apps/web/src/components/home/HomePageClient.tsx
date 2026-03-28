@@ -12,6 +12,7 @@ import { useAuth } from "@yuni/auth";
 import { VitalityGauge, YuniCard } from "@yuni/ui";
 
 import { HeyYuniWeb } from "@/components/voice/HeyYuniWeb";
+import { apiLoadErrorMessage } from "@/lib/api-query-errors";
 import { DEFAULT_CITY, DEFAULT_GEO, DEFAULT_ZONE } from "@/lib/constants";
 
 const fade = {
@@ -124,7 +125,13 @@ export function HomePageClient() {
           Vitalité en temps réel — Reims
         </h2>
         <div className="flex flex-col items-center justify-center gap-6 md:flex-row">
-          {vitality.data?.data ? (
+          {isAuthenticated && vitality.isError ? (
+            <YuniCard className="w-full max-w-md">
+              <p className="text-sm text-yuni-slate-500">
+                {apiLoadErrorMessage(vitality.error)}
+              </p>
+            </YuniCard>
+          ) : vitality.data?.data ? (
             <>
               <VitalityGauge
                 score={vitality.data.data.score}
@@ -146,7 +153,9 @@ export function HomePageClient() {
             <YuniCard className="w-full max-w-md">
               <p className="text-sm text-yuni-slate-600">
                 {isAuthenticated
-                  ? "Chargement de la vitalité…"
+                  ? vitality.isPending
+                    ? "Chargement de la vitalité…"
+                    : "Aucune donnée de vitalité pour le moment."
                   : "Connecte-toi pour afficher la vitalité live."}
               </p>
             </YuniCard>
@@ -159,33 +168,41 @@ export function HomePageClient() {
           Pour toi
         </h2>
         <div className="grid gap-4 md:grid-cols-3">
-          {cards.length > 0
-            ? cards.map((c, i) => (
-                <YuniCard
-                  key={`${c.kind}-${c.title}-${i}`}
-                  variant="elevated"
-                  header={c.kind === "actor" ? "Acteur" : "Événement"}
-                >
-                  <div className="h-24 rounded-yuni-md bg-yuni-wheat-100" />
-                  <p className="mt-2 font-medium text-yuni-slate-900">
-                    {c.title}
-                  </p>
-                  <p className="text-sm text-yuni-slate-500">{c.sub}</p>
-                  <p className="mt-1 text-xs italic text-yuni-terracotta-700">
-                    Score {c.score.toFixed(2)}
-                  </p>
-                </YuniCard>
-              ))
-            : [1, 2, 3].map((i) => (
-                <YuniCard key={i} variant="bordered">
-                  <div className="h-24 animate-pulse rounded-yuni-md bg-yuni-wheat-100" />
-                  <p className="mt-2 text-sm text-yuni-slate-500">
-                    {isAuthenticated
+          {isAuthenticated && reco.isError ? (
+            <div className="md:col-span-3 rounded-yuni-md border border-yuni-wheat-100 bg-yuni-wheat-50/80 p-4 text-sm text-yuni-slate-500">
+              {apiLoadErrorMessage(reco.error)}
+            </div>
+          ) : cards.length > 0 ? (
+            cards.map((c, i) => (
+              <YuniCard
+                key={`${c.kind}-${c.title}-${i}`}
+                variant="elevated"
+                header={c.kind === "actor" ? "Acteur" : "Événement"}
+              >
+                <div className="h-24 rounded-yuni-md bg-yuni-wheat-100" />
+                <p className="mt-2 font-medium text-yuni-slate-900">
+                  {c.title}
+                </p>
+                <p className="text-sm text-yuni-slate-500">{c.sub}</p>
+                <p className="mt-1 text-xs italic text-yuni-terracotta-700">
+                  Score {c.score.toFixed(2)}
+                </p>
+              </YuniCard>
+            ))
+          ) : (
+            [1, 2, 3].map((i) => (
+              <YuniCard key={i} variant="bordered">
+                <div className="h-24 animate-pulse rounded-yuni-md bg-yuni-wheat-100" />
+                <p className="mt-2 text-sm text-yuni-slate-500">
+                  {isAuthenticated
+                    ? reco.isPending
                       ? "Chargement…"
-                      : "Connexion requise pour les recommandations."}
-                  </p>
-                </YuniCard>
-              ))}
+                      : "Aucune recommandation pour l’instant."
+                    : "Connexion requise pour les recommandations."}
+                </p>
+              </YuniCard>
+            ))
+          )}
         </div>
       </section>
 
@@ -211,10 +228,16 @@ export function HomePageClient() {
               </p>
             </YuniCard>
           ))}
-          {questPreview.length === 0 ? (
+          {isAuthenticated && quests.isError ? (
+            <p className="text-sm text-yuni-slate-500">
+              {apiLoadErrorMessage(quests.error)}
+            </p>
+          ) : questPreview.length === 0 ? (
             <p className="text-sm text-yuni-slate-500">
               {isAuthenticated
-                ? "Aucune quête pour cette ville pour le moment."
+                ? quests.isPending
+                  ? "Chargement des quêtes…"
+                  : "Aucune quête pour cette ville pour le moment."
                 : "Connecte-toi pour voir les quêtes."}
             </p>
           ) : null}

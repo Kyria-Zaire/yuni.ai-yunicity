@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMerchantGenerateMutation } from "@yuni/api-client/react";
-import type { ContentType, MerchantContentRequest } from "@yuni/api-client";
+import { YuniAPIError, type ContentType, type MerchantContentRequest } from "@yuni/api-client";
 import { useAuth } from "@yuni/auth";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -390,7 +390,9 @@ export default function MerchantPage() {
 
           {mut.isError ? (
             <p className="text-sm text-yuni-terracotta-700">
-              Erreur API — vérifiez la connexion et le JWT.
+              {mut.error instanceof YuniAPIError && mut.error.status === 401
+                ? "Connecte-toi ou renouvelle ta session pour générer du contenu."
+                : "Erreur API — vérifie la connexion et le backend."}
             </p>
           ) : null}
         </div>

@@ -8,6 +8,7 @@ import { useYuniAIClient } from "@yuni/api-client/react";
 import { useAuth } from "@yuni/auth";
 import { YuniButton, YuniCard } from "@yuni/ui";
 
+import { apiLoadErrorMessage } from "@/lib/api-query-errors";
 import { DEFAULT_CITY } from "@/lib/constants";
 
 import type { Quest, QuestDifficulty } from "@yuni/api-client";
@@ -93,6 +94,10 @@ export default function QuestsPage() {
 
       {!isAuthenticated ? (
         <p className="text-yuni-slate-600">Connecte-toi pour voir les quêtes.</p>
+      ) : quests.isError ? (
+        <p className="rounded-yuni-md border border-yuni-wheat-100 bg-yuni-wheat-50/80 p-4 text-sm text-yuni-slate-500">
+          {apiLoadErrorMessage(quests.error)}
+        </p>
       ) : quests.isLoading ? (
         <div className="grid gap-4 md:grid-cols-2">
           {[1, 2, 3, 4].map((i) => (
