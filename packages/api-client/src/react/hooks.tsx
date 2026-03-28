@@ -5,6 +5,8 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
   ChatRequest,
   LeaderboardPeriod,
+  MerchantContentRequest,
+  RegistryCityConfig,
   ReportInput,
   UserInput,
 } from "../types";
@@ -131,5 +133,190 @@ export function useDashboardActors(city: string, enabled = true) {
     queryKey: ["dashboard-actors", city],
     queryFn: () => client.getDashboardActors(city),
     enabled: Boolean(city) && enabled,
+  });
+}
+
+export function useSentimentCity(city: string, enabled = true) {
+  const client = useYuniAIClient();
+  return useQuery({
+    queryKey: ["sentiment-city", city],
+    queryFn: () => client.getSentimentCity(city),
+    enabled: Boolean(city) && enabled,
+    staleTime: 60_000,
+  });
+}
+
+export function useFederationStats(enabled = true) {
+  const client = useYuniAIClient();
+  return useQuery({
+    queryKey: ["federation-stats"],
+    queryFn: () => client.getFederationStats(),
+    enabled,
+    staleTime: 120_000,
+  });
+}
+
+export function useFederationPeers(cityId: string, enabled = true) {
+  const client = useYuniAIClient();
+  return useQuery({
+    queryKey: ["federation-peers", cityId],
+    queryFn: () => client.getFederationPeers(cityId),
+    enabled: Boolean(cityId) && enabled,
+    staleTime: 120_000,
+  });
+}
+
+export function useFederationCompare(
+  cityId: string,
+  myScore: number | undefined,
+  enabled = true,
+) {
+  const client = useYuniAIClient();
+  return useQuery({
+    queryKey: ["federation-compare", cityId, myScore ?? null],
+    queryFn: () => client.getFederationCompare(cityId, myScore),
+    enabled: Boolean(cityId) && myScore != null && enabled,
+    staleTime: 120_000,
+  });
+}
+
+export function useCivicExport(
+  city: string,
+  periodDays: number,
+  enabled = false,
+) {
+  const client = useYuniAIClient();
+  return useQuery({
+    queryKey: ["civic-export", city, periodDays],
+    queryFn: () => client.getCivicExport(city, periodDays),
+    enabled: Boolean(city) && enabled,
+  });
+}
+
+export function useCities(enabled = true) {
+  const client = useYuniAIClient();
+  return useQuery({
+    queryKey: ["cities-registry"],
+    queryFn: () => client.getCities(),
+    enabled,
+    staleTime: 60_000,
+  });
+}
+
+export function useAdminOverview(adminToken: string | null, enabled = true) {
+  const client = useYuniAIClient();
+  return useQuery({
+    queryKey: ["admin-overview", adminToken ?? ""],
+    queryFn: () => client.getAdminOverview(adminToken as string),
+    enabled: Boolean(adminToken) && enabled,
+    staleTime: 30_000,
+  });
+}
+
+export function useBudgetMonthly(adminToken: string | null, enabled = true) {
+  const client = useYuniAIClient();
+  return useQuery({
+    queryKey: ["admin-budget-monthly", adminToken ?? ""],
+    queryFn: () => client.getBudgetMonthly(adminToken as string),
+    enabled: Boolean(adminToken) && enabled,
+    staleTime: 60_000,
+  });
+}
+
+export function useAuditChain(city: string, enabled = true) {
+  const client = useYuniAIClient();
+  return useQuery({
+    queryKey: ["audit-chain", city],
+    queryFn: () => client.getAuditChain(city),
+    enabled: Boolean(city) && enabled,
+  });
+}
+
+export function useAuditRecords(
+  city: string,
+  limit: number,
+  enabled = true,
+) {
+  const client = useYuniAIClient();
+  return useQuery({
+    queryKey: ["audit-records", city, limit],
+    queryFn: () => client.getAuditRecords(city, limit),
+    enabled: Boolean(city) && enabled,
+    staleTime: 15_000,
+  });
+}
+
+export function useExportDashboardMutation() {
+  const client = useYuniAIClient();
+  return useMutation({
+    mutationFn: ({
+      city,
+      format,
+    }: {
+      city: string;
+      format: "json" | "csv";
+    }) => client.exportDashboard(city, format),
+  });
+}
+
+export function useVerifyAuditMutation() {
+  const client = useYuniAIClient();
+  return useMutation({
+    mutationFn: ({
+      adminToken,
+      city,
+    }: {
+      adminToken: string;
+      city: string;
+    }) => client.verifyAuditChain(adminToken, city),
+  });
+}
+
+export function useRegisterCityMutation() {
+  const client = useYuniAIClient();
+  return useMutation({
+    mutationFn: ({
+      adminToken,
+      body,
+    }: {
+      adminToken: string;
+      body: RegistryCityConfig;
+    }) => client.registerCity(adminToken, body),
+  });
+}
+
+export function usePatchCityRolloutMutation() {
+  const client = useYuniAIClient();
+  return useMutation({
+    mutationFn: ({
+      adminToken,
+      cityId,
+      percentage,
+    }: {
+      adminToken: string;
+      cityId: string;
+      percentage: number;
+    }) => client.patchCityRollout(adminToken, cityId, percentage),
+  });
+}
+
+export function useFlushCityCacheMutation() {
+  const client = useYuniAIClient();
+  return useMutation({
+    mutationFn: ({
+      adminToken,
+      city,
+    }: {
+      adminToken: string;
+      city: string;
+    }) => client.flushCityCache(adminToken, city),
+  });
+}
+
+export function useMerchantGenerateMutation() {
+  const client = useYuniAIClient();
+  return useMutation({
+    mutationFn: (body: MerchantContentRequest) =>
+      client.generateMerchantContent(body),
   });
 }

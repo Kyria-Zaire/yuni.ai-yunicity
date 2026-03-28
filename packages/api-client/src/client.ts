@@ -1,27 +1,39 @@
 import { YuniAPIError } from "./errors";
 import type {
   AdminOverviewResponse,
+  AuditChain,
+  AuditVerifyResponse,
+  AIDecisionRecord,
   BadgeCatalogItem,
   ChatRequest,
   ChatResponse,
+  CityListResponse,
+  CivicDataExport,
   DashboardActorsResponse,
   DashboardEngagementResponse,
+  DashboardVitalityExportJson,
   DashboardVitalityResponse,
+  FederationCompareResponse,
+  FederationStats,
+  CityPeer,
   HealthResponse,
   LeaderboardPeriod,
   LeaderboardResponse,
   MapDataResponse,
   MerchantContentRequest,
   MerchantContentResponse,
+  MonthlyBudgetReport,
   OnboardingGuide,
   Quest,
   RecommendationApiResponse,
+  RegistryCityConfig,
   ReportInput,
   ReportOutput,
   UserInput,
   UserQuestProgress,
   UserXPProfile,
   VitalityApiEnvelope,
+  ZoneSentiment,
 } from "./types";
 
 export interface YuniAIClientConfig {
@@ -57,6 +69,21 @@ export class YuniAIClient {
       throw new YuniAPIError(response.status, errorBody);
     }
     return response.json() as Promise<T>;
+  }
+
+  private async fetchAuthorized(
+    path: string,
+    options: RequestInit = {},
+  ): Promise<Response> {
+    const token = this.getToken();
+    const headers: HeadersInit = {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options.headers ?? {}),
+    };
+    return fetch(`${this.baseUrl}${path}`, {
+      ...options,
+      headers,
+    });
   }
 
   private async fetchJsonAdmin<T>(
@@ -179,6 +206,114 @@ export class YuniAIClient {
     const c = encodeURIComponent(city);
     return this.fetchJson<DashboardActorsResponse>(
       `/v1/dashboard/${c}/actors`,
+    );
+  }
+
+  /**
+   * Export tableau de bord ville (JSON ou CSV téléchargeable).
+   * `periodDays` est réservé à l’export civique ODbL (`getCivicExport`).
+   */
+  async exportDashboard(
+    city: string,
+    format: "json" | "csv",
+  ): Promise<DashboardVitalityExportJson | Blob> {
+    const c = encodeURIComponent(city);
+    const path = `/v1/dashboard/${c}/export?format=${format}`;
+    if (format === "json") {
+      return this.fetchJson<DashboardVitalityExportJson>(path);
+    }
+    const response = await this.fetchAuthorized(path);
+    if (!response.ok) {
+      const errorBody: unknown = await response.json().catch(() => ({}));
+      throw new YuniAPIError(response.status, errorBody);
+    }
+    return response.blob();
+  }
+
+  async getCivicExport(
+    city: string,
+    periodDays: number,
+  ): Promise<CivicDataExport> {
+    const c = encodeURIComponent(city);
+    return this.fetchJson<CivicDataExport>(
+      `/v1/civic/export/${c}?period_days=${periodDays}`,
+    );
+  }
+
+  async getSentimentCity(city: string): Promise<ZoneSentiment[]> {
+    const c = encodeURIComponent(city);
+    return this.fetchJson<ZoneSentiment[]>(`/v1/sentiment/${c}`);
+  }
+
+  async getFederationStats(): Promise<FederationStats> {
+    return this.fetchJson<FederationStats>("/v1/federation/stats");
+  }
+
+  async getFederationPeers(cityId: string): Promise<CityPeer[]> {
+    return this.fetchJson<CityPeer[]>(
+      `/v1/federation/peers/${encodeURIComponent(cityId)}`,
+    );
+  }
+
+  async getFederationCompare(
+    cityId: string,
+    myScore?: number,
+  ): Promise<FederationCompareResponse> {
+    const q =
+      myScore != null ? `?my_score=${encodeURIComponent(String(myScore))}` : "";
+    return this.fetchJson<FederationCompareResponse>(
+      `/v1/federation/compare/${encodeURIComponent(cityId)}${q}`,
+    );
+  }
+
+  async getCities(): Promise<CityListResponse> {
+    return this.fetchJson<CityListResponse>("/v1/cities");
+  }
+
+  async registerCity(
+    adminToken: string,
+    body: RegistryCityConfig,
+  ): Promise<RegistryCityConfig> {
+    return this.fetchJsonAdmin<RegistryCityConfig>(
+      "/v1/admin/cities",
+      adminToken,
+      {
+        method: "POST",
+        body: JSON.stringify(body),
+      },
+    );
+  }
+
+  async getBudgetMonthly(adminToken: string): Promise<MonthlyBudgetReport> {
+    return this.fetchJsonAdmin<MonthlyBudgetReport>(
+      "/v1/admin/budget/monthly",
+      adminToken,
+    );
+  }
+
+  async getAuditChain(city: string): Promise<AuditChain> {
+    const c = encodeURIComponent(city);
+    return this.fetchJson<AuditChain>(`/v1/civic/audit/${c}`);
+  }
+
+  async getAuditRecords(
+    city: string,
+    limit: number,
+  ): Promise<AIDecisionRecord[]> {
+    const c = encodeURIComponent(city);
+    return this.fetchJson<AIDecisionRecord[]>(
+      `/v1/civic/audit/${c}/records?limit=${limit}`,
+    );
+  }
+
+  async verifyAuditChain(
+    adminToken: string,
+    city: string,
+  ): Promise<AuditVerifyResponse> {
+    const c = encodeURIComponent(city);
+    return this.fetchJsonAdmin<AuditVerifyResponse>(
+      `/v1/civic/audit/${c}/verify`,
+      adminToken,
     );
   }
 

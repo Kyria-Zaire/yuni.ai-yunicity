@@ -441,3 +441,162 @@ export interface AdminOverviewResponse {
     quests_completed: number;
   };
 }
+
+/** GET /v1/sentiment/{city} — zones agrégées. */
+export type SentimentScoreLabel =
+  | "tres_positif"
+  | "positif"
+  | "neutre"
+  | "negatif"
+  | "tres_negatif";
+
+export interface ZoneSentiment {
+  city: string;
+  zone: string;
+  mood_score: number;
+  sentiment: SentimentScoreLabel;
+  trend: "improving" | "stable" | "degrading";
+  top_topics: string[];
+  sample_count: number;
+  computed_at: string;
+  valid_until: string;
+}
+
+export interface CityPeer {
+  city_id: string;
+  display_name: string;
+  country: string;
+  population_range: string;
+  vitality_score_avg: number;
+  joined_federation_at: string;
+  export_url: string | null;
+}
+
+export interface FederationStats {
+  total_cities: number;
+  countries: string[];
+  avg_vitality_score: number;
+  top_performing_city: string;
+  benchmark_data: Record<string, number>;
+}
+
+export interface FederationCompareResponse {
+  city_score: number;
+  peer_average: number;
+  percentile: number;
+  delta: number;
+  ranking: number;
+}
+
+export type BudgetStatus = "ok" | "warning" | "critical" | "emergency";
+
+export interface DailyBudgetStats {
+  date: string;
+  mistral_large_cost_eur: number;
+  mistral_small_cost_eur: number;
+  total_cost_eur: number;
+  calls_large: number;
+  calls_small: number;
+  savings_vs_all_large_eur: number;
+  cache_hit_rate: number;
+}
+
+export interface MonthlyBudgetReport {
+  month: string;
+  budget_eur: number;
+  spent_eur: number;
+  remaining_eur: number;
+  spent_pct: number;
+  status: BudgetStatus;
+  daily_breakdown: DailyBudgetStats[];
+  projection_month_end_eur: number;
+  top_cost_by_city: Record<string, number>;
+  top_cost_by_task: Record<string, number>;
+}
+
+export type AIDecisionTypeApi =
+  | "recommendation"
+  | "vitality_score"
+  | "sentiment"
+  | "quest_generation"
+  | "agent_action"
+  | "chat_response"
+  | "content_generation";
+
+export interface AIDecisionRecord {
+  record_id: string;
+  timestamp: string;
+  decision_type: AIDecisionTypeApi;
+  model_used: string;
+  source: string;
+  city: string;
+  zone: string | null;
+  latency_ms: number;
+  decision_summary: string;
+  confidence: number;
+  checksum: string;
+  previous_record_id: string | null;
+}
+
+export interface AuditChain {
+  city: string;
+  records_count: number;
+  chain_valid: boolean;
+  oldest_record: string;
+  newest_record: string;
+  integrity_hash: string;
+}
+
+export interface AuditVerifyResponse {
+  city: string;
+  chain_valid: boolean;
+  records_count: number;
+  integrity_hash: string;
+}
+
+/** GET /v1/cities — registre public. */
+export interface RegistryCityConfig {
+  city_id: string;
+  display_name: string;
+  country: string;
+  language: string;
+  center_lat: number;
+  center_lng: number;
+  zones: string[];
+  radius_km: number;
+  yunicity_api_url: string;
+  yunicity_service_token_key: string;
+  mistral_context: string;
+  features: Record<string, boolean>;
+  rollout_percentage: number;
+  active: boolean;
+  onboarding_steps: string[];
+  local_contacts: Record<string, unknown>[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CityListResponse {
+  cities: RegistryCityConfig[];
+  total: number;
+}
+
+/** Export civique ODbL — sous-ensemble pour le front. */
+export interface CivicDataExport {
+  export_id: string;
+  generated_at: string;
+  license: string;
+  license_url: string;
+  source: string;
+  city: string;
+  period_start: string;
+  period_end: string;
+  data_version: string;
+}
+
+export interface DashboardVitalityExportJson {
+  city: string;
+  exported_at: string;
+  request_id: string;
+  zones: { zone: string; score: number; grade: string; trend: string }[];
+}
