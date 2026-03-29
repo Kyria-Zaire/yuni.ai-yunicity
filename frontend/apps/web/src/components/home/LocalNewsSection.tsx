@@ -6,12 +6,15 @@ export interface LocalNewsSectionProps {
   cityLabel: string;
   items: NewsCardItem[];
   updatedLabel: string;
+  /** Variante citoyen : fil d’actu filtré par intérêts */
+  filtered?: boolean;
 }
 
 export function LocalNewsSection({
   cityLabel,
   items,
   updatedLabel,
+  filtered = false,
 }: LocalNewsSectionProps) {
   return (
     <section aria-labelledby="local-news-heading">
@@ -24,6 +27,11 @@ export function LocalNewsSection({
           <span className="ml-2 font-body text-sm font-normal text-yuni-slate-500">
             › {cityLabel}
           </span>
+          {filtered ? (
+            <span className="ml-2 block font-body text-xs font-normal text-yuni-slate-400 md:inline md:text-sm">
+              · filtré selon tes intérêts
+            </span>
+          ) : null}
         </h2>
         <span className="text-xs text-yuni-slate-400">{updatedLabel}</span>
       </div>
