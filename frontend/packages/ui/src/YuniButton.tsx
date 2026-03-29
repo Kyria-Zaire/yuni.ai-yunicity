@@ -41,7 +41,10 @@ export function YuniButton({
   type = "button",
   ...rest
 }: YuniButtonProps) {
-  const isDisabled = Boolean(disabled || loading);
+  /* Ne pas désactiver un submit pendant loading : sinon le navigateur peut annuler l’envoi du formulaire (RHF + isSubmitting). */
+  const isDisabled = Boolean(
+    disabled || (loading && type !== "submit"),
+  );
 
   return (
     <button

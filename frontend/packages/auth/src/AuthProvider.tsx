@@ -16,6 +16,18 @@ import { sha256Hex } from "./hash";
 const SESSION_COOKIE = "yuni-auth";
 const JWT_COOKIE = "yuni-jwt";
 const COOKIE_MAX_AGE_S = 60 * 60 * 8;
+/** Email affiché / hash — non sensible, évite perte d’état après navigation document. */
+const SESSION_EMAIL_KEY = "yuni-auth-email";
+
+function readCookie(name: string): string | null {
+  if (typeof document === "undefined") {
+    return null;
+  }
+  const m = document.cookie.match(
+    new RegExp(`(?:^|; )${name.replace(/[$()*+.?[\\\]^{|}]/g, "\\$&")}=([^;]*)`),
+  );
+  return m ? decodeURIComponent(m[1]) : null;
+}
 
 export interface AuthUser {
   email: string;
@@ -71,6 +83,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null);
     setUser(null);
     setSessionCookies(false, null);
+    if (typeof sessionStorage !== "undefined") {
+      sessionStorage.removeItem(SESSION_EMAIL_KEY);
+    }
   }, []);
 
   const scheduleRefresh = useCallback(
@@ -123,8 +138,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hash,
     });
     setSessionCookies(true, mockJwt);
+    if (typeof sessionStorage !== "undefined") {
+      sessionStorage.setItem(SESSION_EMAIL_KEY, email.trim());
+    }
     scheduleRefresh(mockJwt);
   }, [scheduleRefresh]);
+
+  /** Après navigation document (assign / reload), recoller JWT cookie + email session. */
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const jwt = readCookie(JWT_COOKIE);
+    const storedEmail = sessionStorage.getItem(SESSION_EMAIL_KEY);
+    if (!jwt || !storedEmail) {
+      return;
+    }
+    if (token) {
+      return;
+    }
+    setToken(jwt);
+    void sha256Hex(storedEmail.toLowerCase()).then((hash) => {
+      setUser({
+        email: storedEmail,
+        id: hash.slice(0, 16),
+        hash,
+      });
+      scheduleRefresh(jwt);
+    });
+  }, [token, scheduleRefresh]);
 
   useEffect(() => () => clearRefreshTimer(), []);
 

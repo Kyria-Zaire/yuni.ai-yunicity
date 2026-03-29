@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -18,7 +18,6 @@ type FormValues = z.infer<typeof schema>;
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -26,16 +25,20 @@ export default function LoginPage() {
     setError,
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      await login(data.email, data.password);
-      router.push("/profile");
-    } catch (e) {
-      setError("root", {
-        message: e instanceof Error ? e.message : "Connexion impossible",
-      });
-    }
-  });
+  const onValid = useCallback(
+    async (data: FormValues) => {
+      try {
+        await login(data.email, data.password);
+        // Navigation document : cookies visibles par le middleware (évite soft-nav sans cookie).
+        window.location.assign("/profile");
+      } catch (e) {
+        setError("root", {
+          message: e instanceof Error ? e.message : "Connexion impossible",
+        });
+      }
+    },
+    [login, setError],
+  );
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-yuni-terracotta-100 to-yuni-wheat-50 px-6">
@@ -48,7 +51,12 @@ export default function LoginPage() {
             Ta ville te reconnaît
           </p>
         </div>
-        <form className="space-y-4" onSubmit={onSubmit} noValidate>
+        <form
+          className="space-y-4"
+          method="post"
+          onSubmit={handleSubmit(onValid)}
+          noValidate
+        >
           <div>
             <label
               htmlFor="email"
