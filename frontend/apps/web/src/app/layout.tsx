@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Gelasio, JetBrains_Mono, Outfit } from "next/font/google";
+import { Gelasio, JetBrains_Mono, Outfit, Space_Mono } from "next/font/google";
 
 import { AxeInit } from "@/components/dev/AxeInit";
 import { SiteFooter } from "@/components/layout/SiteFooter";
@@ -30,6 +30,13 @@ const mono = JetBrains_Mono({
   weight: ["400", "500"],
 });
 
+const neuroMono = Space_Mono({
+  subsets: ["latin"],
+  variable: "--font-neuro-mono",
+  display: "swap",
+  weight: ["400", "700"],
+});
+
 export const metadata: Metadata = {
   title: "Yuni.ai — Ta ville, en direct.",
   description:
@@ -56,7 +63,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${gelasio.variable} ${outfit.variable} ${mono.variable}`}
+      className={`${gelasio.variable} ${outfit.variable} ${mono.variable} ${neuroMono.variable}`}
     >
       <body className="min-h-screen font-body antialiased">
         <AxeInit />
