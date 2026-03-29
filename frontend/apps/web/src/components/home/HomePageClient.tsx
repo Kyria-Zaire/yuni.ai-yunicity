@@ -1,9 +1,13 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import type {
+  ActorRecommendation,
+  EventRecommendation,
+  VitalityIndexResponse,
+} from "@yuni/api-client";
 import {
   useQuests,
   useRecommendations,
@@ -17,21 +21,78 @@ import {
   YuniCard,
 } from "@yuni/ui";
 
-import { HeyYuniWeb } from "@/components/voice/HeyYuniWeb";
+import { BreakingBanner } from "@/components/home/BreakingBanner";
+import { HeroSection } from "@/components/home/HeroSection";
+import { HeyYuniPanel } from "@/components/home/HeyYuniPanel";
+import { LocalNewsSection } from "@/components/home/LocalNewsSection";
+import type { NewsCardItem } from "@/components/home/NewsCard";
+import { UpcomingEventsWidget } from "@/components/home/UpcomingEventsWidget";
+import { VitalityIndexWidget } from "@/components/home/VitalityIndexWidget";
+import type { VitalityZoneRow } from "@/components/home/VitalityIndexWidget";
 import { DEFAULT_CITY, DEFAULT_GEO, DEFAULT_ZONE } from "@/lib/constants";
 
-const fade = {
-  hidden: { opacity: 0, y: 12 },
-  show: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.08, duration: 0.45 },
-  }),
-};
+import type { MetricCardProps } from "./MetricCard";
 
 function toError(e: unknown): Error | null {
   if (!e) return null;
   return e instanceof Error ? e : new Error(String(e));
+}
+
+function mapTrend(t: string | undefined): MetricCardProps["trend"] {
+  const x = (t ?? "").toLowerCase();
+  if (x.includes("down") || x.includes("neg") || x.includes("baisse")) {
+    return "down";
+  }
+  if (x.includes("up") || x.includes("pos") || x.includes("hausse")) {
+    return "up";
+  }
+  return "stable";
+}
+
+function zonesFromVitality(
+  data: VitalityIndexResponse | undefined,
+): VitalityZoneRow[] {
+  if (!data) {
+    return [{ name: "Centre-ville", score: 72 }];
+  }
+  const raw = data.dimensions;
+  if (!Array.isArray(raw) || raw.length === 0) {
+    return [{ name: data.zone, score: Math.round(data.score) }];
+  }
+  const rows: VitalityZoneRow[] = [];
+  for (const d of raw) {
+    if (d && typeof d === "object" && "name" in d && "score" in d) {
+      const o = d as Record<string, unknown>;
+      const name = String(o.name);
+      const score = Number(o.score);
+      if (!Number.isNaN(score)) {
+        rows.push({ name, score: Math.round(score) });
+      }
+    }
+  }
+  return rows.length > 0 ? rows.slice(0, 5) : [{ name: data.zone, score: Math.round(data.score) }];
+}
+
+function buildNewsItems(
+  actors: ActorRecommendation[],
+  events: EventRecommendation[],
+): NewsCardItem[] {
+  const fromActors = actors.slice(0, 3).map((a) => ({
+    id: `actor-${a.id}`,
+    title: a.name,
+    category: a.category,
+    meta: `${a.distance_km != null ? `${a.distance_km.toFixed(1)} km` : "—"} · score ${a.score.toFixed(2)}`,
+    sentiment: { firstPct: 43 },
+  }));
+  const need = 3 - fromActors.length;
+  const fromEvents = events.slice(0, Math.max(0, need)).map((e) => ({
+    id: `event-${e.id}`,
+    title: e.title,
+    category: e.category,
+    meta: "Événement · Yunicity",
+    sentiment: { firstPct: 40 },
+  }));
+  return [...fromActors, ...fromEvents];
 }
 
 export function HomePageClient() {
@@ -106,191 +167,260 @@ export function HomePageClient() {
     !quests.isError &&
     questPreview.length === 0;
 
+  const vit = vitality.data?.data;
+  const scoreRounded = vit ? Math.round(vit.score) : 78;
+  const actorCount = (data?.actors?.length ?? 0) + (data?.events?.length ?? 0);
+  const metrics: MetricCardProps[] = [
+    {
+      label: "Indice vitalité",
+      value: String(scoreRounded),
+      unit: "/ 100",
+      trend: mapTrend(vit?.trend),
+      color:
+        (vit?.score ?? 78) >= 60
+          ? "positive"
+          : (vit?.score ?? 78) >= 40
+            ? "neutral"
+            : "negative",
+    },
+    {
+      label: "Acteurs & événements",
+      value: String(actorCount > 0 ? actorCount : 234),
+      unit: "extraits",
+      trend: "stable",
+      color: "neutral",
+    },
+    {
+      label: "Signalements",
+      value: "12",
+      unit: "cette semaine",
+      trend: "down",
+      color: "negative",
+    },
+    {
+      label: "Quêtes actives",
+      value: String((quests.data ?? []).length || 5),
+      unit: "disponibles",
+      trend: "up",
+      color: "positive",
+    },
+  ];
+
+  const cityLabel =
+    DEFAULT_CITY.charAt(0).toUpperCase() + DEFAULT_CITY.slice(1);
+
+  const newsItems = buildNewsItems(
+    (data?.actors ?? []).slice(0, 6),
+    (data?.events ?? []).slice(0, 6),
+  );
+
+  const showBreaking =
+    isAuthenticated &&
+    vit &&
+    (vit.score < 45 || vit.trend.toLowerCase().includes("down"));
+
+  const zones = zonesFromVitality(vit);
+
   return (
-    <div className="relative overflow-hidden">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-40"
-        aria-hidden
-      >
-        <div className="absolute left-[10%] top-20 h-2 w-2 animate-pulse rounded-full bg-yuni-terracotta-300" />
-        <div className="absolute right-[15%] top-40 h-1.5 w-1.5 animate-pulse rounded-full bg-yuni-terracotta-500 delay-150" />
-        <div className="absolute left-[30%] bottom-32 h-1 w-1 animate-pulse rounded-full bg-yuni-slate-300 delay-300" />
-      </div>
+    <div className="bg-[var(--surface-page)]">
+      {showBreaking ? (
+        <BreakingBanner
+          message="Signalement Reims Centre — Voirie dégradée rue Victor Hugo"
+          timeLabel="Il y a 5 min"
+        />
+      ) : null}
 
-      <section className="mx-auto max-w-5xl px-6 pb-12 pt-12 text-center">
-        <motion.h1
-          custom={0}
-          initial="hidden"
-          animate="show"
-          variants={fade}
-          className="font-editorial text-4xl font-semibold leading-tight text-yuni-slate-900 md:text-[56px]"
-        >
-          Ta ville{" "}
-          <span className="italic text-yuni-terracotta-500">te reconnaît</span>.
-        </motion.h1>
-        <motion.p
-          custom={1}
-          initial="hidden"
-          animate="show"
-          variants={fade}
-          className="mt-4 font-body text-lg text-yuni-slate-500"
-        >
-          Recommandations · Voix · Vitalité · Quêtes
-        </motion.p>
-        <motion.div
-          custom={2}
-          initial="hidden"
-          animate="show"
-          variants={fade}
-          className="mt-10"
-        >
-          <HeyYuniWeb city={DEFAULT_CITY} />
-        </motion.div>
-        {!isAuthenticated ? (
-          <motion.p
-            custom={3}
-            initial="hidden"
-            animate="show"
-            variants={fade}
-            className="mt-6 text-sm text-yuni-slate-500"
+      <HeroSection
+        city={DEFAULT_CITY}
+        cityLabel={cityLabel}
+        metrics={metrics}
+      />
+
+      {!isAuthenticated ? (
+        <p className="mx-auto max-w-7xl px-4 pb-6 text-center text-sm text-yuni-slate-600">
+          <Link
+            href="/login"
+            className="font-medium underline decoration-yuni-terracotta-500/60"
           >
-            <Link href="/login" className="underline decoration-yuni-terracotta-500/60">
-              Connecte-toi
-            </Link>{" "}
-            pour la vitalité live et les recommandations.
-          </motion.p>
-        ) : null}
-      </section>
+            Connecte-toi
+          </Link>{" "}
+          pour la vitalité live et les recommandations.
+        </p>
+      ) : null}
 
-      <section className="mx-auto max-w-5xl px-6 py-10">
-        <h2 className="mb-8 text-center font-editorial text-2xl text-yuni-slate-800">
-          Vitalité en temps réel — Reims
-        </h2>
-        <div className="grid gap-6 lg:grid-cols-12 lg:items-start">
-          <div className="space-y-4 lg:col-span-7">
-            <h3 className="font-editorial text-xl text-yuni-slate-900">
-              Pour toi
-            </h3>
-            <SkeletonCard
-              isLoading={recoLoading}
-              error={recoErr}
-              empty={!isAuthenticated || recoEmpty}
-              emptyMessage={
-                !isAuthenticated
-                  ? "Connecte-toi pour voir des recommandations personnalisées."
-                  : "Aucune recommandation pour l’instant."
+      <section className="mx-auto max-w-7xl px-4 pb-16">
+        <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-12">
+          <div className="space-y-12 lg:col-span-8">
+            <LocalNewsSection
+              cityLabel={cityLabel}
+              items={
+                newsItems.length > 0
+                  ? newsItems.slice(0, 3)
+                  : [
+                      {
+                        id: "demo-1",
+                        title: "Vie locale — en attente de données",
+                        category: "Ville",
+                        meta: `${cityLabel} · Yunicity`,
+                      },
+                      {
+                        id: "demo-2",
+                        title: "Connecte-toi pour charger le fil territorial",
+                        category: "Info",
+                        meta: "API recommandations",
+                      },
+                      {
+                        id: "demo-3",
+                        title: "Carte et quêtes disponibles dans le menu",
+                        category: "Parcours",
+                        meta: "Yuni AI",
+                      },
+                    ]
               }
-            >
-              <div className="grid gap-4 sm:grid-cols-2">
-                {cards.map((c, i) => (
-                  <YuniCard
-                    key={`${c.kind}-${c.title}-${i}`}
-                    variant="elevated"
-                    header={c.kind === "actor" ? "Acteur" : "Événement"}
-                  >
-                    <div className="h-24 rounded-yuni-md bg-yuni-wheat-100" />
-                    <p className="mt-2 font-body font-medium text-yuni-slate-900">
-                      {c.title}
-                    </p>
-                    <p className="text-sm text-yuni-slate-500">{c.sub}</p>
-                    <p className="mt-1 text-xs italic text-yuni-terracotta-700">
-                      Score {c.score.toFixed(2)}
-                    </p>
-                  </YuniCard>
-                ))}
+              updatedLabel="Mis à jour à l’instant"
+            />
+
+            <section aria-labelledby="quests-heading">
+              <div className="mb-4 flex items-center justify-between gap-2">
+                <h2
+                  id="quests-heading"
+                  className="font-display text-2xl font-bold text-yuni-slate-900"
+                >
+                  Quêtes à la une
+                </h2>
               </div>
-            </SkeletonCard>
-          </div>
-
-          <div className="lg:col-span-5">
-            <h3 className="mb-4 text-center font-editorial text-xl text-yuni-slate-900 lg:text-left">
-              Vitalité
-            </h3>
-            <SkeletonCard
-              isLoading={vitLoading}
-              error={vitErr}
-              empty={!isAuthenticated || vitEmpty}
-              emptyMessage={
-                !isAuthenticated
-                  ? "Connecte-toi pour afficher la vitalité live."
-                  : "Aucune donnée de vitalité pour le moment."
-              }
-            >
-              <YuniCard variant="elevated" className="items-center text-center">
-                <div className="flex flex-col items-center gap-4">
-                  {vitality.data?.data ? (
-                    <VitalityGauge
-                      score={vitality.data.data.score}
-                      grade={vitality.data.data.grade}
-                      trend={vitality.data.data.trend}
-                    />
-                  ) : null}
-                  <p className="max-w-sm text-sm text-yuni-slate-600">
-                    Votre ville est vivante — score consolidé sur le centre-ville.
-                  </p>
-                </div>
-              </YuniCard>
-            </SkeletonCard>
-          </div>
-
-          <div className="lg:col-span-12">
-            <h3 className="mb-4 font-editorial text-xl text-yuni-slate-900">
-              Quêtes actives
-            </h3>
-            <SkeletonCard
-              isLoading={questsLoading}
-              error={questsErr}
-              empty={!isAuthenticated || questsEmpty}
-              emptyMessage={
-                !isAuthenticated
-                  ? "Connecte-toi pour voir les quêtes de la semaine."
-                  : "Aucune quête pour cette ville pour le moment."
-              }
-            >
-              <div className="grid gap-4 md:grid-cols-2">
-                {questPreview.map((q) => (
-                  <YuniCard
-                    key={q.id}
-                    variant="elevated"
-                    header={q.difficulty}
-                    footer={
-                      <span className="font-body font-bold text-yuni-terracotta-500">
-                        ＋{q.xp_reward} XP · {q.estimated_duration}
-                      </span>
-                    }
-                  >
-                    <p className="line-clamp-2 font-body font-medium">
-                      {q.title}
-                    </p>
-                    <p className="mt-1 line-clamp-2 text-sm text-yuni-slate-600">
-                      {q.description}
-                    </p>
-                  </YuniCard>
-                ))}
-              </div>
-            </SkeletonCard>
-            <div className="mt-6 text-center">
-              <YuniButton
-                type="button"
-                variant="secondary"
-                size="md"
-                onClick={() => router.push("/quests")}
+              <hr className="mb-6 border-t-2 border-black" />
+              <SkeletonCard
+                isLoading={questsLoading}
+                error={questsErr}
+                empty={!isAuthenticated || questsEmpty}
+                emptyMessage={
+                  !isAuthenticated
+                    ? "Connecte-toi pour voir les quêtes de la semaine."
+                    : "Aucune quête pour cette ville pour le moment."
+                }
               >
-                Toutes les quêtes
-              </YuniButton>
-            </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {questPreview.map((q) => (
+                    <YuniCard
+                      key={q.id}
+                      variant="elevated"
+                      header={q.difficulty}
+                      footer={
+                        <span className="font-body font-bold text-yuni-terracotta-600">
+                          ＋{q.xp_reward} XP · {q.estimated_duration}
+                        </span>
+                      }
+                    >
+                      <p className="line-clamp-2 font-body font-medium">
+                        {q.title}
+                      </p>
+                      <p className="mt-1 line-clamp-2 text-sm text-yuni-slate-600">
+                        {q.description}
+                      </p>
+                    </YuniCard>
+                  ))}
+                </div>
+              </SkeletonCard>
+              <div className="mt-6">
+                <YuniButton
+                  type="button"
+                  variant="secondary"
+                  size="md"
+                  onClick={() => router.push("/quests")}
+                >
+                  Toutes les quêtes
+                </YuniButton>
+              </div>
+            </section>
+
+            <section aria-labelledby="reco-heading">
+              <h2
+                id="reco-heading"
+                className="font-display text-2xl font-bold text-yuni-slate-900"
+              >
+                Pour toi
+              </h2>
+              <hr className="mb-6 mt-2 border-t border-yuni-wheat-200" />
+              <SkeletonCard
+                isLoading={recoLoading}
+                error={recoErr}
+                empty={!isAuthenticated || recoEmpty}
+                emptyMessage={
+                  !isAuthenticated
+                    ? "Connecte-toi pour voir des recommandations personnalisées."
+                    : "Aucune recommandation pour l’instant."
+                }
+              >
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {cards.map((c, i) => (
+                    <YuniCard
+                      key={`${c.kind}-${c.title}-${i}`}
+                      variant="elevated"
+                      header={c.kind === "actor" ? "Acteur" : "Événement"}
+                    >
+                      <div className="h-24 rounded-yuni-md bg-yuni-wheat-100" />
+                      <p className="mt-2 font-body font-medium text-yuni-slate-900">
+                        {c.title}
+                      </p>
+                      <p className="text-sm text-yuni-slate-500">{c.sub}</p>
+                      <p className="mt-1 text-xs italic text-yuni-terracotta-700">
+                        Score {c.score.toFixed(2)}
+                      </p>
+                    </YuniCard>
+                  ))}
+                </div>
+              </SkeletonCard>
+            </section>
           </div>
+
+          <aside className="space-y-8 lg:col-span-4">
+            <VitalityIndexWidget
+              score={vit ? Math.round(vit.score) : scoreRounded}
+              zones={zones}
+            />
+            <HeyYuniPanel city={DEFAULT_CITY} />
+            <UpcomingEventsWidget
+              events={(data?.events ?? []).slice(0, 5).map((e) => ({
+                id: e.id,
+                title: e.title,
+                category: e.category,
+              }))}
+            />
+
+            <div className="border border-yuni-wheat-200 bg-white p-4 shadow-yuni-sm">
+              <h3 className="font-display text-lg font-bold text-yuni-slate-900">
+                Jauge territorial
+              </h3>
+              <SkeletonCard
+                isLoading={vitLoading}
+                error={vitErr}
+                empty={!isAuthenticated || vitEmpty}
+                emptyMessage={
+                  !isAuthenticated
+                    ? "Connecte-toi pour afficher la vitalité live."
+                    : "Aucune donnée de vitalité pour le moment."
+                }
+              >
+                <YuniCard variant="elevated" className="items-center text-center">
+                  <div className="flex flex-col items-center gap-4">
+                    {vitality.data?.data ? (
+                      <VitalityGauge
+                        score={vitality.data.data.score}
+                        grade={vitality.data.data.grade}
+                        trend={vitality.data.data.trend}
+                      />
+                    ) : null}
+                    <p className="max-w-sm text-sm text-yuni-slate-600">
+                      Score consolidé sur le centre-ville — {cityLabel}.
+                    </p>
+                  </div>
+                </YuniCard>
+              </SkeletonCard>
+            </div>
+          </aside>
         </div>
       </section>
-
-      <footer className="border-t border-yuni-wheat-300/60 bg-yuni-wheat-50/80 py-10">
-        <div className="mx-auto flex max-w-4xl flex-wrap justify-center gap-6 px-6 text-sm text-yuni-slate-600">
-          <span>À propos</span>
-          <span>RGPD</span>
-          <span>EU AI Act</span>
-          <span>Contact</span>
-        </div>
-      </footer>
     </div>
   );
 }
