@@ -15,7 +15,7 @@ type Row = { date: string; large: number; small: number };
 
 export default function BudgetBars({ data }: { data: Row[] }) {
   return (
-    <div style={{ width: "100%", height: 320 }}>
+    <div className="h-[300px] w-full min-w-0">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
