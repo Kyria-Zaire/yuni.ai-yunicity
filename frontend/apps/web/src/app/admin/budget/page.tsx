@@ -5,19 +5,10 @@ import { useMemo } from "react";
 
 import { useBudgetMonthly } from "@yuni/api-client/react";
 
+import { NeuroCard, NeuroKPI } from "@/components/neuro";
 import { useAdminToken } from "@/hooks/useAdminToken";
 
 const BudgetBars = dynamic(() => import("./BudgetBars"), { ssr: false });
-
-function statusBadge(status: string): string {
-  if (status === "ok") {
-    return "bg-emerald-950 text-emerald-200";
-  }
-  if (status === "warning") {
-    return "bg-amber-900 text-amber-100";
-  }
-  return "bg-yuni-terracotta-900 text-yuni-terracotta-100";
-}
 
 export default function AdminBudgetPage() {
   const adminToken = useAdminToken();
@@ -46,24 +37,58 @@ export default function AdminBudgetPage() {
       0,
     ) ?? 0;
 
+  const spentPct =
+    data != null
+      ? Math.min(
+          100,
+          data.spent_pct <= 1 ? data.spent_pct * 100 : data.spent_pct,
+        )
+      : 0;
+
   return (
     <div className="space-y-8">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-editorial text-3xl text-white">Budget Mistral</h1>
-          <p className="text-sm text-slate-300">
+          <h1 className="font-display text-3xl font-bold" style={{ color: "#2D3748" }}>
+            Budget Mistral
+          </h1>
+          <p className="text-sm" style={{ color: "#4A5568" }}>
             Rapport mensuel —{" "}
-            <code className="text-amber-200">/v1/admin/budget/monthly</code>
+            <code className="rounded bg-slate-200/80 px-1 text-xs text-slate-800">
+              /v1/admin/budget/monthly
+            </code>
           </p>
         </div>
         {data ? (
           <div className="text-right">
-            <p className="text-xs text-slate-400">Budget mensuel</p>
-            <p className="font-editorial text-2xl text-white">
+            <p className="font-body text-xs" style={{ color: "#4A5568" }}>
+              Budget mensuel
+            </p>
+            <p
+              className="font-mono text-2xl font-bold"
+              style={{
+                color: "#2D3748",
+                fontFamily: "var(--font-neuro-mono), ui-monospace, monospace",
+              }}
+            >
               {data.spent_eur.toFixed(1)}€ / {data.budget_eur.toFixed(0)}€
             </p>
             <span
-              className={`mt-1 inline-block rounded-yuni-sm px-2 py-0.5 text-xs font-semibold ${statusBadge(data.status)}`}
+              className="mt-1 inline-block rounded-yuni-sm px-2 py-0.5 font-body text-xs font-semibold"
+              style={{
+                background:
+                  data.status === "ok"
+                    ? "rgba(45, 106, 79, 0.15)"
+                    : data.status === "warning"
+                      ? "rgba(217, 119, 6, 0.15)"
+                      : "rgba(193, 68, 14, 0.15)",
+                color:
+                  data.status === "ok"
+                    ? "#2D6A4F"
+                    : data.status === "warning"
+                      ? "#B45309"
+                      : "#8B2F08",
+              }}
             >
               {data.status.toUpperCase()}
             </span>
@@ -71,51 +96,44 @@ export default function AdminBudgetPage() {
         ) : null}
       </header>
 
-      <section className="rounded-yuni-lg border border-slate-800 bg-slate-900 p-4">
-        <h2 className="mb-4 text-sm font-medium text-slate-200">
+      <NeuroCard variant="raised">
+        <h2 className="mb-4 font-body text-sm font-semibold" style={{ color: "#2D3748" }}>
           Coûts journaliers (Large vs Small)
         </h2>
         <BudgetBars data={chartData} />
-      </section>
+      </NeuroCard>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-yuni-lg border border-slate-800 bg-slate-900 p-4">
-          <p className="text-xs text-slate-400">Appels Large</p>
-          <p className="text-xl font-bold text-orange-400">{largeCalls}</p>
-        </div>
-        <div className="rounded-yuni-lg border border-slate-800 bg-slate-900 p-4">
-          <p className="text-xs text-slate-400">Appels Small</p>
-          <p className="text-xl font-bold text-slate-200">{smallCalls}</p>
-        </div>
-        <div className="rounded-yuni-lg border border-slate-800 bg-slate-900 p-4">
-          <p className="text-xs text-slate-400">Économie vs tout-Large</p>
-          <p className="text-xl font-bold text-emerald-400">
-            +{savings.toFixed(1)}€
-          </p>
-        </div>
+        <NeuroKPI label="Appels Large" value={largeCalls} status="warning" />
+        <NeuroKPI label="Appels Small" value={smallCalls} status="ok" />
+        <NeuroKPI
+          label="Économie vs tout-Large"
+          value={`+${savings.toFixed(1)}`}
+          unit="€"
+          status="ok"
+        />
       </section>
 
-      <div className="rounded-yuni-lg border border-slate-800 bg-slate-900 p-4 text-sm text-slate-300">
-        <p>
-          Taux routing Small : <strong className="text-white">{routingPct}%</strong>
+      <NeuroCard variant="flat">
+        <p className="font-body text-sm" style={{ color: "#2D3748" }}>
+          Taux routing Small :{" "}
+          <strong style={{ color: "#2D3748" }}>{routingPct}%</strong>
         </p>
-        <p className="mt-2">
+        <p className="mt-2 font-body text-sm" style={{ color: "#4A5568" }}>
           À ce rythme, fin de mois estimée :{" "}
-          <strong className="text-white">
+          <strong className="font-mono" style={{ color: "#2D3748" }}>
             {data?.projection_month_end_eur.toFixed(1) ?? "—"}€
           </strong>
         </p>
         {data ? (
-          <div className="mt-4 h-3 w-full overflow-hidden rounded-yuni-full bg-slate-800">
+          <div className="mt-4 h-3 w-full overflow-hidden rounded-yuni-full bg-slate-300/80">
             <div
               className="h-full bg-yuni-terracotta-500 transition-all"
-              style={{
-                width: `${Math.min(100, (data.spent_pct <= 1 ? data.spent_pct * 100 : data.spent_pct))}%`,
-              }}
+              style={{ width: `${spentPct}%` }}
             />
           </div>
         ) : null}
-      </div>
+      </NeuroCard>
     </div>
   );
 }
