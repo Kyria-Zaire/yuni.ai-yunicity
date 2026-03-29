@@ -48,7 +48,7 @@ export const viewport: Viewport = {
   themeColor: "#C1440E",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({
@@ -65,7 +65,7 @@ export default function RootLayout({
         <AxeInit />
         <Providers>
           <SiteHeader />
-          {children}
+          <main id="main-content">{children}</main>
         </Providers>
       </body>
     </html>

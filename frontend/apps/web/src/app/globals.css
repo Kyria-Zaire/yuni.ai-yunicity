@@ -9,7 +9,7 @@
 
 :root {
   /* Typographie (alignée layout Next — noms de variables partagés) */
-  --font-editorial: "Cormorant Garamond", Georgia, serif;
+  --font-editorial: "Cormorant Garamond", georgia, serif;
   --font-body: "Outfit", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 
@@ -87,7 +87,7 @@ h1,
 h2,
 h3,
 h4 {
-  font-family: var(--font-editorial), Georgia, serif;
+  font-family: var(--font-editorial), georgia, serif;
   font-weight: 600;
   line-height: 1.2;
   color: var(--text-primary);

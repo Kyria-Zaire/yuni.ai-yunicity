@@ -1,7 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-
 import { cn } from "./utils";
 
 export interface XPBarProps {
@@ -37,11 +35,9 @@ export function XPBar({
         </span>
       </div>
       <div className="h-2 w-full overflow-hidden rounded-full bg-yuni-wheat-100">
-        <motion.div
-          className="h-full rounded-full bg-gradient-to-r from-yuni-terracotta-300 to-yuni-terracotta-500"
-          initial={{ width: 0 }}
-          animate={{ width: `${pct}%` }}
-          transition={{ type: "spring", stiffness: 80, damping: 18 }}
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-yuni-terracotta-500 to-yuni-terracotta-700 transition-[width] duration-700 ease-out motion-reduce:transition-none"
+          style={{ width: `${pct}%` }}
         />
       </div>
     </div>

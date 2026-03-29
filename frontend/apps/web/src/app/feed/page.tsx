@@ -65,7 +65,7 @@ export default function FeedPage() {
   const vitality = { score: 72, grade: "B" };
 
   return (
-    <main className="mx-auto grid max-w-7xl gap-6 px-4 py-8 lg:grid-cols-12">
+    <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 lg:grid-cols-12">
       <aside className="space-y-4 lg:col-span-3">
         <h2 className="font-editorial text-xl text-yuni-slate-900">Filtres</h2>
         <label className="block text-sm text-yuni-slate-600">
@@ -169,6 +169,6 @@ export default function FeedPage() {
           </p>
         </YuniCard>
       </aside>
-    </main>
+    </div>
   );
 }

@@ -38,7 +38,7 @@ export default function LoginPage() {
   });
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-yuni-terracotta-100 to-yuni-wheat-50 px-6">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-yuni-terracotta-100 to-yuni-wheat-50 px-6">
       <div className="w-full max-w-md space-y-8 rounded-yuni-xl bg-white/90 p-8 shadow-yuni-lg backdrop-blur">
         <div className="text-center">
           <p className="font-editorial text-3xl text-yuni-terracotta-700">
@@ -105,6 +105,6 @@ export default function LoginPage() {
           </Link>
         </p>
       </div>
-    </main>
+    </div>
   );
 }

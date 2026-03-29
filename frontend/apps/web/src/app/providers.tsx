@@ -8,8 +8,15 @@ import { YuniAIProvider } from "@yuni/api-client/react";
 import { AuthProvider, useAuth } from "@yuni/auth";
 import { YuniToastProvider } from "@yuni/ui";
 
-const defaultApiBase =
-  process.env.NEXT_PUBLIC_YUNI_API_URL ?? "http://127.0.0.1:8000";
+const resolvedApiBase =
+  process.env.NEXT_PUBLIC_YUNI_API_URL ??
+  (process.env.NODE_ENV === "development"
+    ? "http://127.0.0.1:8000"
+    : undefined);
+if (!resolvedApiBase) {
+  throw new Error("NEXT_PUBLIC_YUNI_API_URL must be defined in production");
+}
+const defaultApiBase: string = resolvedApiBase;
 
 function YuniBridge({ children }: { children: ReactNode }) {
   const { token } = useAuth();

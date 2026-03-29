@@ -28,7 +28,7 @@ export function SkeletonCard({
 }: SkeletonCardProps) {
   if (isLoading) {
     return (
-      <div className="animate-pulse space-y-3 rounded-lg border border-yuni-wheat-300/60 bg-white p-4">
+      <div className="animate-pulse motion-reduce:animate-none space-y-3 rounded-lg border border-yuni-wheat-300/60 bg-white p-4">
         <div className="h-4 w-3/4 rounded bg-yuni-wheat-100" />
         <div className="h-4 w-1/2 rounded bg-yuni-wheat-100" />
         <div className="h-20 rounded bg-yuni-wheat-100" />
@@ -40,7 +40,10 @@ export function SkeletonCard({
     const status = getErrorStatus(error);
     const is401 = status === 401;
     return (
-      <div className="space-y-2 rounded-lg border border-yuni-terracotta-100 bg-white p-6 text-center">
+      <div
+        role="alert"
+        className="space-y-2 rounded-lg border border-yuni-terracotta-100 bg-white p-6 text-center"
+      >
         <p className="text-2xl" aria-hidden>
           😔
         </p>

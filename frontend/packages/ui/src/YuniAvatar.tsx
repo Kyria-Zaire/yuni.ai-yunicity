@@ -38,9 +38,10 @@ export function YuniAvatar({
         <span className="select-none">{initials(name)}</span>
       )}
       <span
+        aria-hidden
         className="absolute bottom-0.5 right-0.5 h-3 w-3 rounded-full border-2 border-white bg-yuni-forest-500"
-        title={`Niveau ${level}`}
       />
+      <span className="sr-only">Niveau {level}</span>
     </div>
   );
 }

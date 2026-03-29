@@ -87,7 +87,7 @@ export default function QuestsPage() {
   });
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8">
+    <div className="mx-auto max-w-5xl px-4 py-8">
       <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-editorial text-3xl text-yuni-slate-900">
@@ -196,7 +196,7 @@ export default function QuestsPage() {
           busy={progress.isPending}
         />
       </section>
-    </main>
+    </div>
   );
 }
 

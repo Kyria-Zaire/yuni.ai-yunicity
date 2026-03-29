@@ -64,9 +64,9 @@ export default function DashboardLayout({
           })}
         </nav>
       </aside>
-      <main className="ml-[240px] min-h-screen flex-1 overflow-y-auto p-6 md:p-10">
+      <div className="ml-[240px] min-h-screen flex-1 overflow-y-auto p-6 md:p-10">
         {children}
-      </main>
+      </div>
     </div>
   );
 }

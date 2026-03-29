@@ -43,6 +43,10 @@ function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
+function isAutoDismissVariant(v: YuniToastVariant): boolean {
+  return v === "success" || v === "info";
+}
+
 export function YuniToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<YuniToastItem[]>([]);
   const timers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
@@ -61,8 +65,10 @@ export function YuniToastProvider({ children }: { children: ReactNode }) {
         const next = [...prev, { ...toast, id }];
         return next.slice(-MAX_VISIBLE);
       });
-      const timer = setTimeout(() => remove(id), AUTO_DISMISS_MS);
-      timers.current.set(id, timer);
+      if (isAutoDismissVariant(toast.variant)) {
+        const timer = setTimeout(() => remove(id), AUTO_DISMISS_MS);
+        timers.current.set(id, timer);
+      }
     },
     [remove],
   );
@@ -89,11 +95,22 @@ export function YuniToastProvider({ children }: { children: ReactNode }) {
             key={t.id}
             role="status"
             className={clsx(
-              "yuni-toast-item pointer-events-auto rounded-lg border px-4 py-3 font-body text-sm shadow-yuni-md",
+              "yuni-toast-item flex items-start justify-between gap-3 rounded-lg border px-4 py-3 font-body text-sm shadow-yuni-md",
               variantStyles[t.variant],
+              "pointer-events-auto",
             )}
           >
-            {t.message}
+            <span className="min-w-0 flex-1">{t.message}</span>
+            {!isAutoDismissVariant(t.variant) ? (
+              <button
+                type="button"
+                className="shrink-0 rounded-yuni-sm px-1.5 py-0.5 text-lg leading-none text-current hover:bg-black/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                aria-label="Fermer la notification"
+                onClick={() => remove(t.id)}
+              >
+                ✕
+              </button>
+            ) : null}
           </div>
         ))}
       </div>

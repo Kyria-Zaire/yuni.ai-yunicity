@@ -43,7 +43,7 @@ export default function ProfilePage() {
     : "Progression";
 
   return (
-    <main className="mx-auto max-w-4xl space-y-8 px-4 py-10">
+    <div className="mx-auto max-w-4xl space-y-8 px-4 py-10">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-4">
           <YuniAvatar
@@ -113,7 +113,7 @@ export default function ProfilePage() {
                 className={`rounded-yuni-lg border p-3 text-sm ${
                   on
                     ? "border-yuni-forest-300 bg-white text-yuni-forest-700 shadow-yuni-sm"
-                    : "border-yuni-wheat-300 bg-yuni-wheat-50 text-yuni-slate-300 opacity-60"
+                    : "border-yuni-wheat-300 bg-yuni-wheat-50 text-yuni-slate-500"
                 }`}
               >
                 <p className="font-editorial text-base font-semibold text-yuni-slate-900">
@@ -209,6 +209,6 @@ export default function ProfilePage() {
       <div className="flex justify-center">
         <VitalityGauge score={68} grade="B" />
       </div>
-    </main>
+    </div>
   );
 }

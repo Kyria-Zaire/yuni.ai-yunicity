@@ -48,7 +48,7 @@ export default function MapPage() {
 
   if (!mapboxToken) {
     return (
-      <main className="mx-auto max-w-7xl px-4 py-6">
+      <div className="mx-auto max-w-7xl px-4 py-6">
         <div className="flex min-h-96 flex-col items-center justify-center gap-6 p-8">
           <div className="space-y-2 text-center">
             <h2 className="font-editorial text-3xl text-yuni-slate-700">
@@ -65,12 +65,12 @@ export default function MapPage() {
           <MapActorsList />
           <p className="text-xs text-yuni-slate-400">Ville : {DEFAULT_CITY}</p>
         </div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-6">
+    <div className="mx-auto max-w-7xl px-4 py-6">
       <h1 className="font-editorial text-3xl text-yuni-slate-900">
         Carte interactive
       </h1>
@@ -81,6 +81,6 @@ export default function MapPage() {
       <div className="mt-6">
         <MapboxMap />
       </div>
-    </main>
+    </div>
   );
 }
