@@ -5,8 +5,8 @@ import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { useDashboardVitality, useSentimentCity } from "@yuni/api-client/react";
-import { YuniCard } from "@yuni/ui";
 
+import { NeuroCard } from "@/components/neuro";
 import { useJwtClaims } from "@/hooks/useJwtClaims";
 import { DEFAULT_CITY } from "@/lib/constants";
 
@@ -27,10 +27,7 @@ export default function ZonesClient() {
   const [selected, setSelected] = useState<string | null>(null);
 
   const activeZone =
-    selected ??
-    zoneFromQuery ??
-    zones[0]?.zone ??
-    "centre";
+    selected ?? zoneFromQuery ?? zones[0]?.zone ?? "centre";
 
   const zoneData = useMemo(
     () => zones.find((z) => z.zone === activeZone),
@@ -43,22 +40,24 @@ export default function ZonesClient() {
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="font-editorial text-3xl text-yuni-slate-900">Zones</h1>
-        <p className="text-sm text-yuni-slate-600">
+        <h1 className="font-display text-3xl font-bold" style={{ color: "#2D3748" }}>
+          Zones
+        </h1>
+        <p className="text-sm" style={{ color: "#4A5568" }}>
           Analyse par quartier — {city}
         </p>
       </header>
 
-      <div className="flex flex-wrap gap-2 border-b border-yuni-wheat-200 pb-3">
+      <div className="flex flex-wrap gap-2 border-b border-slate-400/40 pb-3">
         {zones.map((z) => (
           <button
             key={z.zone}
             type="button"
             onClick={() => setSelected(z.zone)}
-            className={`rounded-yuni-md px-3 py-1.5 text-sm font-medium ${
+            className={`rounded-yuni-md px-3 py-1.5 font-body text-sm font-medium ${
               activeZone === z.zone
                 ? "bg-yuni-terracotta-500 text-white"
-                : "bg-yuni-wheat-100 text-yuni-slate-800 hover:bg-yuni-wheat-200"
+                : "bg-white/50 text-slate-800 shadow-[2px_2px_6px_#B8B4AF,-2px_-2px_6px_#FFFFFF] hover:bg-white/80"
             }`}
           >
             {z.zone}
@@ -67,26 +66,37 @@ export default function ZonesClient() {
       </div>
 
       <div className="grid gap-8 lg:grid-cols-2">
-        <YuniCard header="Score 5 dimensions (radar)">
+        <NeuroCard variant="raised">
+          <h2 className="mb-4 font-body text-sm font-semibold" style={{ color: "#2D3748" }}>
+            Score 5 dimensions (radar)
+          </h2>
           {zoneData ? (
             <ZoneRadarBlock dimensions={zoneData.dimensions} zone={activeZone} />
           ) : (
-            <p className="text-sm text-yuni-slate-600">Chargement…</p>
+            <p className="font-body text-sm" style={{ color: "#4A5568" }}>
+              Chargement…
+            </p>
           )}
-        </YuniCard>
-        <YuniCard header="Évolution 30 j. (illustration)">
+        </NeuroCard>
+        <NeuroCard variant="raised">
+          <h2 className="mb-4 font-body text-sm font-semibold" style={{ color: "#2D3748" }}>
+            Évolution 30 j. (illustration)
+          </h2>
           {zoneData ? (
             <ZoneLinesBlock
               baseScore={zoneData.score}
               dimensionKeys={Object.keys(zoneData.dimensions)}
             />
           ) : null}
-        </YuniCard>
+        </NeuroCard>
       </div>
 
-      <YuniCard header="Sentiment — zone sélectionnée">
+      <NeuroCard variant="raised">
+        <h2 className="mb-3 font-body text-sm font-semibold" style={{ color: "#2D3748" }}>
+          Sentiment — zone sélectionnée
+        </h2>
         {zoneSent ? (
-          <div className="space-y-2 text-sm">
+          <div className="space-y-2 font-body text-sm" style={{ color: "#2D3748" }}>
             <p>
               Humeur :{" "}
               <strong>{zoneSent.mood_score.toFixed(0)}</strong> —{" "}
@@ -95,19 +105,24 @@ export default function ZonesClient() {
             <p>Sujets : {zoneSent.top_topics.join(", ") || "—"}</p>
           </div>
         ) : (
-          <p className="text-sm text-yuni-slate-600">Pas de données NLP.</p>
+          <p className="font-body text-sm" style={{ color: "#4A5568" }}>
+            Pas de données NLP.
+          </p>
         )}
-      </YuniCard>
+      </NeuroCard>
 
-      <YuniCard header="Acteurs actifs (aperçu)">
-        <p className="text-sm text-yuni-slate-600">
+      <NeuroCard variant="flat">
+        <h2 className="mb-2 font-body text-sm font-semibold" style={{ color: "#2D3748" }}>
+          Acteurs actifs (aperçu)
+        </h2>
+        <p className="font-body text-sm" style={{ color: "#4A5568" }}>
           Détail complet sur la page{" "}
-          <a className="text-yuni-terracotta-600 underline" href="/dashboard/actors">
+          <a className="font-medium underline" style={{ color: "#8B2F08" }} href="/dashboard/actors">
             Acteurs
           </a>
           .
         </p>
-      </YuniCard>
+      </NeuroCard>
     </div>
   );
 }

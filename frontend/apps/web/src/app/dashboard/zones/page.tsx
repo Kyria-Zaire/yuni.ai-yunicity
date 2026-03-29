@@ -6,7 +6,9 @@ export default function DashboardZonesPage() {
   return (
     <Suspense
       fallback={
-        <div className="p-6 text-sm text-yuni-slate-600">Chargement des zones…</div>
+        <div className="p-6 font-body text-sm" style={{ color: "#4A5568" }}>
+          Chargement des zones…
+        </div>
       }
     >
       <ZonesClient />
