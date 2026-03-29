@@ -1,0 +1,20 @@
+/* Tokens neumorphism dashboard / admin — fond #E8E4DF, ombres 60/40 */
+
+:root {
+  /* Surfaces neumorphiques */
+  --neuro-bg: #e8e4df;
+  --neuro-shadow-d: #b8b4af;
+  --neuro-shadow-l: #ffffff;
+  --neuro-radius: 16px;
+  --neuro-radius-sm: 10px;
+
+  /* Ombres extrudées */
+  --neuro-raised: 6px 6px 12px #b8b4af, -6px -6px 12px #ffffff;
+  --neuro-inset: inset 4px 4px 8px #b8b4af, inset -4px -4px 8px #ffffff;
+  --neuro-flat: 2px 2px 6px #b8b4af, -2px -2px 6px #ffffff;
+
+  /* Texte sur fond neumorphique */
+  --neuro-text-primary: #2d3748;
+  --neuro-text-muted: #4a5568;
+  --neuro-text-accent: #8b2f08;
+}

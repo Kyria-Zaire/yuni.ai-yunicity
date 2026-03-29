@@ -225,17 +225,25 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.cors_origins_list,
-        allow_methods=["GET", "POST", "DELETE"],
-        allow_headers=["Authorization", "Content-Type"],
-        allow_credentials=True,
-    )
-
+    # TrustedHost en premier (couche intérieure) ; CORSMiddleware en dernier = exécuté en
+    # premier sur la requête entrante — gère les preflight OPTIONS avant le reste.
     app.add_middleware(
         TrustedHostMiddleware,
         allowed_hosts=settings.allowed_hosts_list,
+    )
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origins_list,
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=[
+            "Authorization",
+            "Content-Type",
+            "X-Admin-Token",
+            "X-Request-ID",
+        ],
+        allow_credentials=True,
+        expose_headers=["X-Request-ID"],
     )
 
     @app.middleware("http")

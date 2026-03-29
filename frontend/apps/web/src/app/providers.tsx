@@ -1,36 +1,37 @@
 "use client";
 
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { YuniAIClient } from "@yuni/api-client";
 import { YuniAIProvider } from "@yuni/api-client/react";
 import { AuthProvider, useAuth } from "@yuni/auth";
 import { YuniToastProvider } from "@yuni/ui";
 
-const defaultApiBase =
-  process.env.NEXT_PUBLIC_YUNI_API_URL ?? "http://127.0.0.1:8000";
+function resolveDefaultApiBase(): string {
+  const fromEnv = process.env.NEXT_PUBLIC_YUNI_API_URL?.trim();
+  if (fromEnv) {
+    return fromEnv;
+  }
+  if (process.env.NODE_ENV === "development") {
+    return "http://127.0.0.1:8000";
+  }
+  throw new Error("NEXT_PUBLIC_YUNI_API_URL must be defined in production");
+}
+
+const defaultApiBase = resolveDefaultApiBase();
 
 function YuniBridge({ children }: { children: ReactNode }) {
   const { token } = useAuth();
   const queryClient = useQueryClient();
-  /** Toujours lire le JWT courant (évite une course client React Query vs recréation du client). */
-  const tokenRef = useRef<string | null>(null);
-  tokenRef.current = token;
 
   const client = useMemo(
     () =>
       new YuniAIClient({
         baseUrl: defaultApiBase,
-        getToken: () => tokenRef.current,
+        getToken: () => token ?? null,
       }),
-    [],
+    [token],
   );
 
   useEffect(() => {

@@ -28,7 +28,14 @@ async def verify_jwt(
 
     if not settings.JWT_PUBLIC_KEY:
         if settings.is_dev:
-            return {"sub": "dev-user", "env": "dev"}
+            # Claims alignés sur le middleware Next + routes dashboard (`role=city_dashboard`).
+            # Le corps du Bearer est ignoré tant qu’aucune clé publique n’est configurée.
+            return {
+                "sub": "dev-user",
+                "env": "dev",
+                "role": "city_dashboard",
+                "city": "reims",
+            }
         raise AuthenticationError("JWT public key not configured")
 
     try:

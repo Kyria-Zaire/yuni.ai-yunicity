@@ -36,6 +36,7 @@ const withBundleAnalyzer = bundleAnalyzer({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: [
+    "@vis.gl/react-google-maps",
     "@yuni/ui",
     "@yuni/api-client",
     "@yuni/auth",

@@ -1,27 +1,24 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import {
-  Cormorant_Garamond,
-  JetBrains_Mono,
-  Outfit,
-} from "next/font/google";
+import { Gelasio, JetBrains_Mono, Outfit, Space_Mono } from "next/font/google";
 
 import { AxeInit } from "@/components/dev/AxeInit";
+import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 
 import "./globals.css";
 import { Providers } from "./providers";
 
-const cormorant = Cormorant_Garamond({
+const gelasio = Gelasio({
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
-  variable: "--font-editorial",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-display",
   display: "swap",
 });
 
 const outfit = Outfit({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["300", "400", "500", "600"],
   variable: "--font-body",
   display: "swap",
 });
@@ -33,14 +30,21 @@ const mono = JetBrains_Mono({
   weight: ["400", "500"],
 });
 
+const neuroMono = Space_Mono({
+  subsets: ["latin"],
+  variable: "--font-neuro-mono",
+  display: "swap",
+  weight: ["400", "700"],
+});
+
 export const metadata: Metadata = {
-  title: "Yuni AI — Ton assistant territorial",
+  title: "Yuni.ai — Ta ville, en direct.",
   description:
-    "L'IA qui connaît ta ville. Recommandations, vitalité, quêtes citoyennes.",
+    "Média territorial souverain : recommandations, vitalité, voix et quêtes citoyennes.",
   manifest: "/manifest.json",
   openGraph: {
-    title: "Yuni AI",
-    description: "La présence vivante de ta ville.",
+    title: "Yuni.ai",
+    description: "Ta ville, en direct.",
   },
 };
 
@@ -48,7 +52,7 @@ export const viewport: Viewport = {
   themeColor: "#C1440E",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({
@@ -59,13 +63,14 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${cormorant.variable} ${outfit.variable} ${mono.variable}`}
+      className={`${gelasio.variable} ${outfit.variable} ${mono.variable} ${neuroMono.variable}`}
     >
       <body className="min-h-screen font-body antialiased">
         <AxeInit />
         <Providers>
           <SiteHeader />
-          {children}
+          <main id="main-content">{children}</main>
+          <SiteFooter />
         </Providers>
       </body>
     </html>

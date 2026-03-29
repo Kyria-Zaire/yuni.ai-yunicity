@@ -8,8 +8,9 @@ import {
   useHealth,
   useSentimentCity,
 } from "@yuni/api-client/react";
-import { VitalityGauge, YuniCard } from "@yuni/ui";
+import { VitalityGauge } from "@yuni/ui";
 
+import { NeuroCard, NeuroKPI } from "@/components/neuro";
 import { useJwtClaims } from "@/hooks/useJwtClaims";
 import { DEFAULT_CITY } from "@/lib/constants";
 
@@ -56,59 +57,52 @@ export default function DashboardOverviewPage() {
   return (
     <div className="space-y-10">
       <header>
-        <h1 className="font-editorial text-3xl text-yuni-slate-900">
+        <h1 className="font-display text-3xl font-bold" style={{ color: "#2D3748" }}>
           Vue globale
         </h1>
-        <p className="text-sm text-yuni-slate-600">
+        <p className="text-sm" style={{ color: "#4A5568" }}>
           Indicateurs consolidés — {city}
         </p>
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-yuni-lg border border-yuni-wheat-100 bg-white p-4 shadow-yuni-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-yuni-slate-500">
-            Vitalité
-          </p>
-          <p className="mt-1 font-editorial text-2xl font-bold text-yuni-terracotta-600">
-            {avg.toFixed(1)} / {vit.data?.zones[0]?.grade ?? "—"}
-          </p>
-          <p className="mt-1 text-xs text-yuni-forest-600">
-            ↑ +3.2 pts <span className="text-yuni-slate-500">(est.)</span>
-          </p>
-        </div>
-        <div className="rounded-yuni-lg border border-yuni-wheat-100 bg-white p-4 shadow-yuni-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-yuni-slate-500">
-            Utilisateurs
-          </p>
-          <p className="mt-1 font-editorial text-2xl font-bold text-yuni-forest-600">
-            {users.toLocaleString("fr-FR")} actifs
-          </p>
-          <p className="text-xs text-yuni-slate-600">
-            rollout {rollout}%
-          </p>
-        </div>
-        <div className="rounded-yuni-lg border border-yuni-wheat-100 bg-white p-4 shadow-yuni-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-yuni-slate-500">
-            Cache hit
-          </p>
-          <p className="mt-1 font-editorial text-2xl font-bold text-yuni-terracotta-600">
-            {cachePct}%
-          </p>
-          <p className="text-xs text-yuni-forest-600">↑ tendance</p>
-        </div>
-        <div className="rounded-yuni-lg border border-yuni-wheat-100 bg-white p-4 shadow-yuni-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-yuni-slate-500">
-            Coût Mistral
-          </p>
-          <p className="mt-1 font-editorial text-2xl font-bold text-yuni-forest-600">
-            {cost.toFixed(0)}€ / mois
-          </p>
-          <p className="text-xs text-yuni-forest-600">✅ OK</p>
-        </div>
+        <NeuroKPI
+          label="Vitalité"
+          value={avg.toFixed(1)}
+          unit={`/ ${vit.data?.zones[0]?.grade ?? "—"}`}
+          status="ok"
+          trend="up"
+        />
+        <NeuroKPI
+          label="Utilisateurs"
+          value={users.toLocaleString("fr-FR")}
+          unit="actifs"
+          status="neutral"
+        />
+        <NeuroKPI
+          label="Cache hit"
+          value={cachePct}
+          unit="%"
+          status="ok"
+          trend="up"
+        />
+        <NeuroKPI
+          label="Coût Mistral"
+          value={cost.toFixed(0)}
+          unit="€/mois"
+          status="ok"
+        />
       </section>
 
+      <p className="font-body text-xs" style={{ color: "#4A5568" }}>
+        Rollout {rollout}%
+      </p>
+
       <section className="grid gap-8 lg:grid-cols-2">
-        <YuniCard header="Vitalité agrégée">
+        <NeuroCard variant="raised">
+          <h2 className="mb-4 font-body text-sm font-semibold" style={{ color: "#2D3748" }}>
+            Vitalité agrégée
+          </h2>
           <div className="flex h-[300px] items-center justify-center">
             <div className="origin-center scale-[2.2]">
               <VitalityGauge
@@ -117,14 +111,17 @@ export default function DashboardOverviewPage() {
               />
             </div>
           </div>
-        </YuniCard>
-        <YuniCard header={`Tendance 30 j. — ${city} / centre`}>
+        </NeuroCard>
+        <NeuroCard variant="raised">
+          <h2 className="mb-4 font-body text-sm font-semibold" style={{ color: "#2D3748" }}>
+            Tendance 30 j. — {city} / centre
+          </h2>
           <VitalityLineChart data={trend} />
-        </YuniCard>
+        </NeuroCard>
       </section>
 
       <section>
-        <h2 className="mb-4 font-editorial text-xl text-yuni-slate-900">
+        <h2 className="mb-4 font-display text-xl" style={{ color: "#2D3748" }}>
           Zones
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -132,53 +129,66 @@ export default function DashboardOverviewPage() {
             <Link
               key={z.zone}
               href={`/dashboard/zones?zone=${encodeURIComponent(z.zone)}`}
-              className="rounded-yuni-lg border border-yuni-wheat-100 bg-white p-4 shadow-yuni-sm transition hover:border-yuni-terracotta-300"
+              className="block transition hover:opacity-95"
             >
-              <div className="flex items-start gap-3">
-                <div className="scale-75 origin-top-left">
-                  <VitalityGauge score={z.score} grade={z.grade} />
+              <NeuroCard variant="raised" className="h-full hover:shadow-[8px_8px_16px_#B8B4AF,-4px_-4px_12px_#FFFFFF]">
+                <div className="flex items-start gap-3">
+                  <div className="origin-top-left scale-75">
+                    <VitalityGauge score={z.score} grade={z.grade} />
+                  </div>
+                  <div>
+                    <p className="font-body font-medium capitalize" style={{ color: "#2D3748" }}>
+                      {z.zone}
+                    </p>
+                    <span
+                      className="mt-1 inline-block rounded-yuni-sm px-2 py-0.5 font-body text-xs font-semibold"
+                      style={{ background: "#f0ebe4", color: "#2D3748" }}
+                    >
+                      {z.grade}
+                    </span>
+                    <p className="mt-1 font-body text-xs" style={{ color: "#4A5568" }}>
+                      {z.trend}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium capitalize text-yuni-slate-900">
-                    {z.zone}
-                  </p>
-                  <span className="inline-block rounded-yuni-sm bg-yuni-wheat-100 px-2 py-0.5 text-xs font-semibold text-yuni-slate-700">
-                    {z.grade}
-                  </span>
-                  <p className="mt-1 text-xs text-yuni-slate-500">{z.trend}</p>
-                </div>
-              </div>
+              </NeuroCard>
             </Link>
           ))}
         </div>
         {!vit.data?.zones.length ? (
-          <p className="text-sm text-yuni-slate-600">Chargement ou données…</p>
+          <p className="text-sm" style={{ color: "#4A5568" }}>
+            Chargement ou données…
+          </p>
         ) : null}
       </section>
 
       <section>
-        <h2 className="mb-4 font-editorial text-xl text-yuni-slate-900">
+        <h2 className="mb-4 font-display text-xl" style={{ color: "#2D3748" }}>
           Sentiment NLP
         </h2>
-        <YuniCard header="Carte d’humeur par zone">
+        <NeuroCard variant="raised">
+          <h3 className="mb-3 font-body text-sm font-semibold" style={{ color: "#2D3748" }}>
+            Carte d&apos;humeur par zone
+          </h3>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {sentiment.data?.map((s) => (
               <div
                 key={s.zone}
-                className="rounded-yuni-md border border-yuni-wheat-50 p-3"
+                className="rounded-yuni-md border border-slate-300/60 bg-white/35 p-3"
               >
                 <div
                   className={`h-16 w-full rounded-yuni-sm ${moodColor(s.mood_score)}`}
                   title={`${s.mood_score.toFixed(0)}`}
                 />
-                <p className="mt-2 text-sm font-medium capitalize text-yuni-slate-900">
+                <p className="mt-2 font-body text-sm font-medium capitalize" style={{ color: "#2D3748" }}>
                   {s.zone}
                 </p>
                 <div className="mt-1 flex flex-wrap gap-1">
                   {s.top_topics.slice(0, 3).map((t) => (
                     <span
                       key={t}
-                      className="rounded-yuni-sm bg-yuni-slate-100 px-1.5 py-0.5 text-[10px] text-yuni-slate-700"
+                      className="rounded-yuni-sm bg-white/60 px-1.5 py-0.5 font-body text-[10px]"
+                      style={{ color: "#2D3748" }}
                     >
                       {t}
                     </span>
@@ -188,11 +198,11 @@ export default function DashboardOverviewPage() {
             ))}
           </div>
           {sentiment.isError ? (
-            <p className="text-sm text-yuni-terracotta-700">
+            <p className="mt-2 font-body text-sm" style={{ color: "#8B2F08" }}>
               Sentiment indisponible (JWT requis).
             </p>
           ) : null}
-        </YuniCard>
+        </NeuroCard>
       </section>
     </div>
   );

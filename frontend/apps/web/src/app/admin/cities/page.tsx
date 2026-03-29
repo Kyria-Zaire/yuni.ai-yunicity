@@ -38,13 +38,13 @@ function CityModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-yuni-lg border border-yuni-slate-700 bg-yuni-slate-900 p-6 text-white shadow-yuni-lg">
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-yuni-lg border border-slate-600 bg-slate-900 p-6 text-white shadow-yuni-lg">
         <h2 className="font-editorial text-xl">Nouvelle ville</h2>
         <div className="mt-4 space-y-3 text-sm">
           <label className="block space-y-1">
-            <span className="text-yuni-slate-400">city_id</span>
+            <span className="text-slate-300">city_id</span>
             <input
-              className="w-full rounded-yuni-md border border-yuni-slate-700 bg-yuni-slate-950 px-2 py-1.5"
+              className="w-full rounded-yuni-md border border-slate-600 bg-slate-950 px-2 py-1.5 text-slate-100"
               value={draft.city_id}
               onChange={(e) =>
                 setDraft((d) => ({ ...d, city_id: e.target.value }))
@@ -52,9 +52,9 @@ function CityModal({
             />
           </label>
           <label className="block space-y-1">
-            <span className="text-yuni-slate-400">display_name</span>
+            <span className="text-slate-300">display_name</span>
             <input
-              className="w-full rounded-yuni-md border border-yuni-slate-700 bg-yuni-slate-950 px-2 py-1.5"
+              className="w-full rounded-yuni-md border border-slate-600 bg-slate-950 px-2 py-1.5 text-slate-100"
               value={draft.display_name}
               onChange={(e) =>
                 setDraft((d) => ({ ...d, display_name: e.target.value }))
@@ -62,9 +62,9 @@ function CityModal({
             />
           </label>
           <label className="block space-y-1">
-            <span className="text-yuni-slate-400">zones (virgules)</span>
+            <span className="text-slate-300">zones (virgules)</span>
             <input
-              className="w-full rounded-yuni-md border border-yuni-slate-700 bg-yuni-slate-950 px-2 py-1.5"
+              className="w-full rounded-yuni-md border border-slate-600 bg-slate-950 px-2 py-1.5 text-slate-100"
               value={draft.zones.join(",")}
               onChange={(e) =>
                 setDraft((d) => ({
@@ -79,7 +79,7 @@ function CityModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-yuni-md px-4 py-2 text-sm text-yuni-slate-400 hover:text-white"
+            className="rounded-yuni-md px-4 py-2 text-sm text-slate-300 hover:text-white"
           >
             Annuler
           </button>
@@ -188,41 +188,48 @@ export default function AdminCitiesPage() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="font-editorial text-3xl text-white">Villes</h1>
-          <p className="text-sm text-yuni-slate-400">Registre et rollout</p>
+          <h1 className="font-display text-3xl font-bold" style={{ color: "#2D3748" }}>
+            Villes
+          </h1>
+          <p className="text-sm" style={{ color: "#4A5568" }}>
+            Registre et rollout
+          </p>
         </div>
         <button
           type="button"
           onClick={() => setModal(true)}
-          className="rounded-yuni-md bg-yuni-terracotta-500 px-4 py-2 text-sm font-medium text-white"
+          className="rounded-yuni-md bg-yuni-terracotta-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:opacity-95"
         >
           Ajouter une ville
         </button>
       </header>
 
       {toast ? (
-        <div className="rounded-yuni-md border border-yuni-forest-800 bg-yuni-forest-950 px-4 py-2 text-sm text-yuni-forest-200">
+        <div
+          className="rounded-yuni-md border border-yuni-forest-500/40 px-4 py-2 text-sm"
+          style={{ background: "rgba(45, 106, 79, 0.12)", color: "#1B4332" }}
+        >
           {toast}
         </div>
       ) : null}
 
-      <div className="overflow-x-auto rounded-yuni-lg border border-yuni-slate-800">
-        <table className="w-full text-left text-sm text-yuni-slate-200">
-          <thead className="border-b border-yuni-slate-800 bg-yuni-slate-900">
+      <div className="overflow-x-auto rounded-yuni-lg border border-slate-400/40 bg-white/40 shadow-[2px_2px_6px_#B8B4AF,-2px_-2px_6px_#FFFFFF]">
+        <table className="w-full text-left text-sm" style={{ color: "#2D3748" }}>
+          <thead className="border-b border-slate-400/50" style={{ background: "rgba(255,255,255,0.45)" }}>
             <tr>
-              <th className="p-3">Ville</th>
-              <th className="p-3">Pays</th>
-              <th className="p-3">Zones</th>
-              <th className="p-3">Rollout</th>
-              <th className="p-3">Actif</th>
-              <th className="p-3">Actions</th>
+              <th className="p-3 font-semibold">Ville</th>
+              <th className="p-3 font-semibold">Pays</th>
+              <th className="p-3 font-semibold">Zones</th>
+              <th className="p-3 font-semibold">Rollout</th>
+              <th className="p-3 font-semibold">Actif</th>
+              <th className="p-3 font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody>
             {data?.cities.map((c) => (
               <tr
                 key={c.city_id}
-                className="border-b border-yuni-slate-800/80 hover:bg-yuni-slate-900/50"
+                className="border-b border-slate-400/25 hover:bg-white/30"
               >
                 <td className="p-3 font-medium">{c.display_name}</td>
                 <td className="p-3">{c.country}</td>
@@ -242,16 +249,16 @@ export default function AdminCitiesPage() {
                     }
                     className="w-36"
                   />
-                  <span className="ml-2 text-xs text-yuni-slate-500">
+                  <span className="ml-2 text-xs" style={{ color: "#4A5568" }}>
                     {localRollout[c.city_id] ?? c.rollout_percentage}%
                   </span>
                 </td>
                 <td className="p-3">
                   <span
-                    className={`rounded-yuni-sm px-2 py-0.5 text-xs ${
+                    className={`rounded-yuni-sm px-2 py-0.5 text-xs font-medium ${
                       c.active
-                        ? "bg-yuni-forest-900 text-yuni-forest-200"
-                        : "bg-yuni-terracotta-900 text-yuni-terracotta-200"
+                        ? "bg-yuni-forest-500/15 text-yuni-forest-500"
+                        : "bg-amber-500/15 text-amber-800"
                     }`}
                   >
                     {c.active ? "oui" : "non"}
@@ -261,7 +268,8 @@ export default function AdminCitiesPage() {
                   <button
                     type="button"
                     onClick={() => flush(c.city_id)}
-                    className="text-xs text-yuni-terracotta-400 hover:underline"
+                    className="text-xs font-medium underline"
+                    style={{ color: "#8B2F08" }}
                   >
                     Flush cache
                   </button>
