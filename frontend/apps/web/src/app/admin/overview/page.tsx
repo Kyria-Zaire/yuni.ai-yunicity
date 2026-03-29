@@ -37,9 +37,9 @@ export default function AdminOverviewPage() {
     <div className="space-y-8">
       <header>
         <h1 className="font-editorial text-3xl text-white">Vue d’ensemble</h1>
-        <p className="text-sm text-yuni-slate-400">
+        <p className="text-sm text-slate-300">
           État plateforme — aligné sur{" "}
-          <code className="text-yuni-wheat-300">/v1/admin/overview</code>
+          <code className="text-amber-200">/v1/admin/overview</code>
         </p>
       </header>
 
@@ -52,10 +52,10 @@ export default function AdminOverviewPage() {
         ].map(([name, ok, label]) => (
           <div
             key={String(name)}
-            className="rounded-yuni-lg border border-yuni-slate-800 bg-yuni-slate-900 p-4"
+            className="rounded-yuni-lg border border-slate-800 bg-slate-900 p-4"
           >
             <p className="text-sm font-medium text-white">{name}</p>
-            <p className="mt-2 flex items-center gap-2 text-xs text-yuni-slate-400">
+            <p className="mt-2 flex items-center gap-2 text-xs text-slate-400">
               <span
                 className={`inline-block h-2.5 w-2.5 rounded-yuni-full ${dotClass(Boolean(ok))}`}
               />
@@ -81,19 +81,19 @@ export default function AdminOverviewPage() {
         ].map(([k, v]) => (
           <div
             key={String(k)}
-            className="rounded-yuni-lg border border-yuni-slate-800 bg-yuni-slate-900 px-4 py-3"
+            className="rounded-yuni-lg border border-slate-800 bg-slate-900 px-4 py-3"
           >
-            <p className="text-xs text-yuni-slate-500">{k}</p>
+            <p className="text-xs text-slate-400">{k}</p>
             <p className="font-mono text-lg text-white">{v}</p>
           </div>
         ))}
       </section>
 
-      <div className="rounded-yuni-lg border border-yuni-slate-800 bg-yuni-slate-900 p-6">
-        <h2 className="mb-3 text-sm font-semibold text-yuni-slate-300">
+      <div className="rounded-yuni-lg border border-slate-800 bg-slate-900 p-6">
+        <h2 className="mb-3 text-sm font-semibold text-slate-200">
           Budget rapide
         </h2>
-        <div className="space-y-3 text-sm text-yuni-slate-300">
+        <div className="space-y-3 text-sm text-slate-300">
           <p>
             Dépensé ce mois :{" "}
             <strong className="text-white">
@@ -103,7 +103,7 @@ export default function AdminOverviewPage() {
           <span
             className={`inline-block rounded-yuni-sm px-2 py-0.5 text-xs font-semibold ${
               budgetOk
-                ? "bg-yuni-forest-900 text-yuni-forest-200"
+                ? "bg-emerald-950 text-emerald-200"
                 : "bg-amber-900 text-amber-100"
             }`}
           >

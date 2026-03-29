@@ -11,7 +11,7 @@ const BudgetBars = dynamic(() => import("./BudgetBars"), { ssr: false });
 
 function statusBadge(status: string): string {
   if (status === "ok") {
-    return "bg-yuni-forest-900 text-yuni-forest-200";
+    return "bg-emerald-950 text-emerald-200";
   }
   if (status === "warning") {
     return "bg-amber-900 text-amber-100";
@@ -51,14 +51,14 @@ export default function AdminBudgetPage() {
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-editorial text-3xl text-white">Budget Mistral</h1>
-          <p className="text-sm text-yuni-slate-400">
+          <p className="text-sm text-slate-300">
             Rapport mensuel —{" "}
-            <code className="text-yuni-wheat-300">/v1/admin/budget/monthly</code>
+            <code className="text-amber-200">/v1/admin/budget/monthly</code>
           </p>
         </div>
         {data ? (
           <div className="text-right">
-            <p className="text-xs text-yuni-slate-500">Budget mensuel</p>
+            <p className="text-xs text-slate-400">Budget mensuel</p>
             <p className="font-editorial text-2xl text-white">
               {data.spent_eur.toFixed(1)}€ / {data.budget_eur.toFixed(0)}€
             </p>
@@ -71,31 +71,31 @@ export default function AdminBudgetPage() {
         ) : null}
       </header>
 
-      <section className="rounded-yuni-lg border border-yuni-slate-800 bg-yuni-slate-900 p-4">
-        <h2 className="mb-4 text-sm font-medium text-yuni-slate-300">
+      <section className="rounded-yuni-lg border border-slate-800 bg-slate-900 p-4">
+        <h2 className="mb-4 text-sm font-medium text-slate-200">
           Coûts journaliers (Large vs Small)
         </h2>
         <BudgetBars data={chartData} />
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-yuni-lg border border-yuni-slate-800 bg-yuni-slate-900 p-4">
-          <p className="text-xs text-yuni-slate-500">Appels Large</p>
-          <p className="text-xl font-bold text-yuni-terracotta-400">{largeCalls}</p>
+        <div className="rounded-yuni-lg border border-slate-800 bg-slate-900 p-4">
+          <p className="text-xs text-slate-400">Appels Large</p>
+          <p className="text-xl font-bold text-orange-400">{largeCalls}</p>
         </div>
-        <div className="rounded-yuni-lg border border-yuni-slate-800 bg-yuni-slate-900 p-4">
-          <p className="text-xs text-yuni-slate-500">Appels Small</p>
-          <p className="text-xl font-bold text-yuni-slate-200">{smallCalls}</p>
+        <div className="rounded-yuni-lg border border-slate-800 bg-slate-900 p-4">
+          <p className="text-xs text-slate-400">Appels Small</p>
+          <p className="text-xl font-bold text-slate-200">{smallCalls}</p>
         </div>
-        <div className="rounded-yuni-lg border border-yuni-slate-800 bg-yuni-slate-900 p-4">
-          <p className="text-xs text-yuni-slate-500">Économie vs tout-Large</p>
-          <p className="text-xl font-bold text-yuni-forest-400">
+        <div className="rounded-yuni-lg border border-slate-800 bg-slate-900 p-4">
+          <p className="text-xs text-slate-400">Économie vs tout-Large</p>
+          <p className="text-xl font-bold text-emerald-400">
             +{savings.toFixed(1)}€
           </p>
         </div>
       </section>
 
-      <div className="rounded-yuni-lg border border-yuni-slate-800 bg-yuni-slate-900 p-4 text-sm text-yuni-slate-300">
+      <div className="rounded-yuni-lg border border-slate-800 bg-slate-900 p-4 text-sm text-slate-300">
         <p>
           Taux routing Small : <strong className="text-white">{routingPct}%</strong>
         </p>
@@ -106,7 +106,7 @@ export default function AdminBudgetPage() {
           </strong>
         </p>
         {data ? (
-          <div className="mt-4 h-3 w-full overflow-hidden rounded-yuni-full bg-yuni-slate-800">
+          <div className="mt-4 h-3 w-full overflow-hidden rounded-yuni-full bg-slate-800">
             <div
               className="h-full bg-yuni-terracotta-500 transition-all"
               style={{

@@ -21,8 +21,8 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-yuni-slate-950 text-yuni-slate-100">
-      <header className="flex flex-wrap items-center gap-6 border-b border-yuni-slate-800 px-6 py-4">
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <header className="flex flex-wrap items-center gap-6 border-b border-slate-800 px-6 py-4">
         <span className="font-editorial text-xl text-white">Admin Yuni AI</span>
         <nav className="flex flex-wrap gap-4 text-sm">
           {LINKS.map(({ href, label }) => (
@@ -31,8 +31,8 @@ export default function AdminLayout({
               href={href}
               className={
                 pathname === href || pathname.startsWith(`${href}/`)
-                  ? "font-medium text-yuni-terracotta-400"
-                  : "text-yuni-slate-400 hover:text-white"
+                  ? "font-medium text-orange-400"
+                  : "text-slate-300 hover:text-white"
               }
             >
               {label}
