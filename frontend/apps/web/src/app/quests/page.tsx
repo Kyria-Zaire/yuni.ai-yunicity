@@ -1,18 +1,17 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useState } from "react";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 
-import { useYuniAIClient } from "@yuni/api-client/react";
+import type { Quest, QuestDifficulty, UserQuestProgress } from "@yuni/api-client";
+import { useQuests, useYuniAIClient } from "@yuni/api-client/react";
 import { useAuth } from "@yuni/auth";
 import { YuniButton, YuniCard } from "@yuni/ui";
 
 import { apiLoadErrorMessage } from "@/lib/api-query-errors";
 import { DEFAULT_CITY } from "@/lib/constants";
-
-import type { Quest, QuestDifficulty } from "@yuni/api-client";
 
 const diffBadge: Record<QuestDifficulty, string> = {
   easy: "bg-yuni-forest-50 text-yuni-forest-700 ring-1 ring-yuni-forest-300",
@@ -112,27 +111,135 @@ function QuestIllustration({ category }: { category: string }) {
   );
 }
 
+function QuestsEmptyState() {
+  return (
+    <div className="text-center py-12">
+      <p className="text-4xl mb-4">🗺️</p>
+      <p className="font-display text-2xl text-yuni-slate-700">
+        Aucune quête active cette semaine
+      </p>
+      <p className="text-yuni-slate-500 mt-2">
+        Les nouvelles quêtes arrivent chaque lundi
+      </p>
+    </div>
+  );
+}
+
+function QuestInProgressPanel({
+  entries,
+  onCompleteStep,
+  busyQuestId,
+}: {
+  entries: { quest: Quest; progress: UserQuestProgress }[];
+  onCompleteStep: (questId: string, stepOrder: number) => void;
+  busyQuestId: string | null;
+}) {
+  return (
+    <div className="mt-4 space-y-8">
+      {entries.map(({ quest, progress }) => {
+        const sorted = [...quest.steps].sort((a, b) => a.order - b.order);
+        const nextStep = sorted.find((s) => s.order > progress.current_step);
+
+        return (
+          <div
+            key={quest.id}
+            className="rounded-yuni-lg border border-yuni-wheat-100 bg-yuni-wheat-50/40 p-4"
+          >
+            <p className="font-editorial text-lg font-semibold text-yuni-slate-900">
+              {quest.title}
+            </p>
+            <ul className="mt-3 space-y-2">
+              {sorted.map((s) => {
+                const done = s.order <= progress.current_step;
+                return (
+                  <li
+                    key={s.order}
+                    className="flex items-start gap-2 text-sm text-yuni-slate-700"
+                  >
+                    <span
+                      className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-medium ${
+                        done
+                          ? "bg-yuni-forest-500 text-white"
+                          : "bg-yuni-wheat-100 text-yuni-slate-600"
+                      }`}
+                    >
+                      {s.order}
+                    </span>
+                    <span className="line-clamp-2">{s.description}</span>
+                  </li>
+                );
+              })}
+            </ul>
+            {nextStep ? (
+              <div className="mt-4">
+                <YuniButton
+                  size="sm"
+                  loading={busyQuestId === quest.id}
+                  onClick={() => onCompleteStep(quest.id, nextStep.order)}
+                >
+                  Valider l&apos;étape {nextStep.order}
+                </YuniButton>
+              </div>
+            ) : (
+              <p className="mt-3 text-sm font-medium text-yuni-forest-600">
+                Quête terminée — bravo !
+              </p>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function QuestsPage() {
   const client = useYuniAIClient();
   const { isAuthenticated } = useAuth();
   const qc = useQueryClient();
   const [confirmId, setConfirmId] = useState<string | null>(null);
 
-  const quests = useQuery({
-    queryKey: ["quests", DEFAULT_CITY],
-    queryFn: () => client.getQuests(DEFAULT_CITY),
-    enabled: isAuthenticated,
+  const quests = useQuests(DEFAULT_CITY, undefined, isAuthenticated);
+  const questList = quests.data ?? [];
+
+  const progressQueries = useQueries({
+    queries: questList.map((q) => ({
+      queryKey: ["quest-progress", DEFAULT_CITY, q.id] as const,
+      queryFn: () => client.getQuestProgress(DEFAULT_CITY, q.id),
+      enabled:
+        isAuthenticated &&
+        questList.length > 0 &&
+        !quests.isLoading &&
+        Boolean(quests.isSuccess),
+    })),
   });
+
+  const inProgressEntries = questList
+    .map((quest, i) => {
+      const row = progressQueries[i];
+      const p = row?.data;
+      if (!p || p.status !== "in_progress") {
+        return null;
+      }
+      return { quest, progress: p };
+    })
+    .filter(
+      (x): x is { quest: Quest; progress: UserQuestProgress } => x != null,
+    );
+
+  const invalidateQuestCaches = () => {
+    void qc.invalidateQueries({ queryKey: ["quests", DEFAULT_CITY] });
+    void qc.invalidateQueries({ queryKey: ["quest-progress", DEFAULT_CITY] });
+  };
 
   const start = useMutation({
     mutationFn: (questId: string) =>
       client.startQuest(DEFAULT_CITY, questId),
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ["quests", DEFAULT_CITY] });
+      invalidateQuestCaches();
     },
   });
 
-  const progress = useMutation({
+  const progressMut = useMutation({
     mutationFn: ({
       questId,
       step,
@@ -141,7 +248,7 @@ export default function QuestsPage() {
       step: number;
     }) => client.completeQuestStep(DEFAULT_CITY, questId, step),
     onSuccess: async () => {
-      void qc.invalidateQueries({ queryKey: ["quests", DEFAULT_CITY] });
+      invalidateQuestCaches();
       const mod = await import("canvas-confetti");
       mod.default({ particleCount: 80, spread: 70, origin: { y: 0.7 } });
     },
@@ -164,7 +271,7 @@ export default function QuestsPage() {
           href="/login"
           className="mt-8 inline-block min-h-[44px] rounded-yuni-sm bg-yuni-terracotta-500 px-8 py-3 font-body font-semibold text-white transition-colors hover:bg-yuni-terracotta-700"
         >
-          Rejoindre l&apos;aventure
+          Se connecter
         </Link>
         <div className="pointer-events-none mx-auto mt-10 grid max-w-3xl select-none grid-cols-1 gap-4 opacity-60 md:grid-cols-3">
           {QUEST_PREVIEWS.map((q) => (
@@ -206,9 +313,11 @@ export default function QuestsPage() {
             />
           ))}
         </div>
+      ) : questList.length === 0 ? (
+        <QuestsEmptyState />
       ) : (
         <div className="grid gap-6 md:grid-cols-2">
-          {(quests.data ?? []).map((q: Quest) => (
+          {questList.map((q: Quest) => (
             <YuniCard
               key={q.id}
               variant="elevated"
@@ -274,77 +383,22 @@ export default function QuestsPage() {
         </div>
       ) : null}
 
-      <section className="mt-12">
-        <h2 className="font-editorial text-xl text-yuni-slate-900">
-          Progression (démo)
-        </h2>
-        <p className="mt-2 text-sm text-yuni-slate-600">
-          Valide l’étape 1 d’une quête démarrée — appelle l’API{" "}
-          <code className="font-mono">/v1/quests/.../step/1</code>.
-        </p>
-        <QuestProgressDemo
-          quests={quests.data ?? []}
-          onStep={(questId) => progress.mutate({ questId, step: 1 })}
-          busy={progress.isPending}
-        />
-      </section>
-    </div>
-  );
-}
-
-function QuestProgressDemo({
-  quests,
-  onStep,
-  busy,
-}: {
-  quests: Quest[];
-  onStep: (id: string) => void;
-  busy: boolean;
-}) {
-  const [sel, setSel] = useState<string | null>(null);
-  const q = quests.find((x) => x.id === sel);
-  if (!quests.length) {
-    return null;
-  }
-  return (
-    <div className="mt-4 space-y-4">
-      <select
-        className="rounded-yuni-md border border-yuni-wheat-100 px-2 py-2 text-sm"
-        value={sel ?? ""}
-        onChange={(e) => setSel(e.target.value || null)}
-      >
-        <option value="">Choisir une quête</option>
-        {quests.map((x) => (
-          <option key={x.id} value={x.id}>
-            {x.title}
-          </option>
-        ))}
-      </select>
-      {q ? (
-        <div className="space-y-2">
-          {q.steps.map((s, idx) => (
-            <div
-              key={s.order}
-              className="flex items-center gap-2 text-sm text-yuni-slate-700"
-            >
-              <span
-                className={`h-6 w-6 rounded-full text-center text-xs leading-6 ${
-                  idx === 0 ? "bg-yuni-terracotta-500 text-white" : "bg-yuni-wheat-100"
-                }`}
-              >
-                {idx + 1}
-              </span>
-              <span className="line-clamp-1">{s.description}</span>
-            </div>
-          ))}
-          <YuniButton
-            size="sm"
-            loading={busy}
-            onClick={() => onStep(q.id)}
-          >
-            Valider l’étape 1
-          </YuniButton>
-        </div>
+      {inProgressEntries.length > 0 ? (
+        <section className="mt-12">
+          <h2 className="font-editorial text-xl text-yuni-slate-900">
+            Ta progression
+          </h2>
+          <p className="mt-2 text-sm text-yuni-slate-600">
+            Valide chaque étape pour terminer la quête et récupérer l&apos;XP.
+          </p>
+          <QuestInProgressPanel
+            entries={inProgressEntries}
+            busyQuestId={progressMut.isPending ? progressMut.variables?.questId ?? null : null}
+            onCompleteStep={(questId, stepOrder) =>
+              progressMut.mutate({ questId, step: stepOrder })
+            }
+          />
+        </section>
       ) : null}
     </div>
   );
