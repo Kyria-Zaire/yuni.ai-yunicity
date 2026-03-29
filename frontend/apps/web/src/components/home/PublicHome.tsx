@@ -4,33 +4,11 @@ import { FeaturedActorsSection } from "@/components/home/FeaturedActorsSection";
 import { HeyYuniPanel } from "@/components/home/HeyYuniPanel";
 import { JoinCTAWidget } from "@/components/home/JoinCTAWidget";
 import { LocalNewsSection } from "@/components/home/LocalNewsSection";
-import type { NewsCardItem } from "@/components/home/NewsCard";
 import { SentimentWidget } from "@/components/home/SentimentWidget";
 import { UpcomingEventsSection } from "@/components/home/UpcomingEventsSection";
-import { VitalityBanner } from "@/components/home/VitalityBanner";
 import { VitalityIndexLive } from "@/components/home/VitalityIndexLive";
 import { DEFAULT_CITY } from "@/lib/constants";
-
-const DEMO_NEWS: NewsCardItem[] = [
-  {
-    id: "pub-1",
-    title: "Vitalité et vie locale — pilote Reims",
-    category: "Smart City",
-    meta: "Découverte · Yuni AI",
-  },
-  {
-    id: "pub-2",
-    title: "Quêtes urbaines et voix citoyenne",
-    category: "Parcours",
-    meta: "Communauté",
-  },
-  {
-    id: "pub-3",
-    title: "Carte interactive et recommandations",
-    category: "Explorer",
-    meta: "Territoire",
-  },
-];
+import { DEMO_NEWS_ITEMS } from "@/components/home/homeHelpers";
 
 function cityLabel(slug: string): string {
   return slug.charAt(0).toUpperCase() + slug.slice(1);
@@ -41,8 +19,6 @@ export function PublicHome() {
 
   return (
     <div className="bg-[var(--surface-page)]">
-      <VitalityBanner citySlug={DEFAULT_CITY} />
-
       <section className="container mx-auto max-w-7xl border-t-2 border-black px-4 pb-10 pt-8">
         <div className="grid gap-8 lg:grid-cols-12">
           <div className="lg:col-span-7">
@@ -92,7 +68,7 @@ export function PublicHome() {
           <div className="space-y-12 lg:col-span-8">
             <LocalNewsSection
               cityLabel={label}
-              items={DEMO_NEWS}
+              items={DEMO_NEWS_ITEMS}
               updatedLabel="Vitrine découverte"
             />
             <UpcomingEventsSection events={[]} />

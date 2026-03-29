@@ -9,6 +9,7 @@ import { useVitality } from "@yuni/api-client/react";
 import { useAuth } from "@yuni/auth";
 
 import { DEFAULT_CITY, DEFAULT_ZONE } from "@/lib/constants";
+import { NewsTicker } from "@/components/layout/NewsTicker";
 
 const links = [
   { href: "/", label: "Accueil" },
@@ -85,7 +86,10 @@ export function SiteHeader() {
     );
 
   return (
-    <header className="sticky top-0 z-40 border-b border-black bg-[var(--surface-header)]">
+    <header
+      id="site-header"
+      className="sticky top-0 z-40 border-b border-black bg-[var(--surface-header)]"
+    >
       <div className="mx-auto max-w-7xl px-4 py-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
@@ -245,6 +249,7 @@ export function SiteHeader() {
           </nav>
         </div>
       </div>
+      <NewsTicker />
       <hr className="m-0 w-full border-0 border-t-2 border-black" />
     </header>
   );

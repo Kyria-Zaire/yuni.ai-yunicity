@@ -128,6 +128,40 @@ h6 {
   animation: yuni-toast-in 0.3s ease-out both;
 }
 
+/* Ruban publicitaire accueil — défilement horizontal */
+@keyframes yuni-promo-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.yuni-promo-marquee-track {
+  animation: yuni-promo-marquee 42s linear infinite;
+  will-change: transform;
+}
+
+/* Bandeau actualités type fil (header) */
+@keyframes ticker {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-ticker {
+  animation: ticker 30s linear infinite;
+  will-change: transform;
+}
+
+.animate-ticker:hover {
+  animation-play-state: paused;
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -140,5 +174,15 @@ h6 {
 
   .yuni-toast-item {
     animation: none;
+  }
+
+  .yuni-promo-marquee-track {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .animate-ticker {
+    animation: none !important;
+    transform: none !important;
   }
 }

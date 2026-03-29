@@ -1,13 +1,15 @@
 import type { ActorRecommendation } from "@yuni/api-client";
 
 import { NewsCard, type NewsCardItem } from "@/components/home/NewsCard";
+import { DEMO_ACTORS_FALLBACK } from "@/components/home/homeHelpers";
 
 function toCard(a: ActorRecommendation): NewsCardItem {
   return {
     id: `actor-${a.id}`,
     title: a.name,
     category: a.category,
-    meta: `${a.distance_km != null ? `${a.distance_km.toFixed(1)} km` : "—"} · découverte`,
+    meta: a.reason,
+    bgGradient: "from-yuni-forest-700 to-yuni-slate-900",
   };
 }
 
@@ -16,7 +18,7 @@ export function FeaturedActorsSection({
 }: {
   actors: ActorRecommendation[];
 }) {
-  const slice = actors.slice(0, 3);
+  const slice = (actors.length > 0 ? actors : DEMO_ACTORS_FALLBACK).slice(0, 3);
   if (slice.length === 0) {
     return (
       <section aria-labelledby="featured-actors-heading">

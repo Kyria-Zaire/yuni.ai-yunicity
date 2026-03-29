@@ -63,6 +63,15 @@ const config: Config = {
         body: ["var(--font-body)", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "monospace"],
       },
+      keyframes: {
+        ticker: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+      },
+      animation: {
+        ticker: "ticker 30s linear infinite",
+      },
       fontSize: {
         "editorial-xs": ["0.875rem", { lineHeight: "1.4" }],
         "editorial-sm": ["1rem", { lineHeight: "1.5" }],

@@ -1,13 +1,15 @@
 import type { EventRecommendation } from "@yuni/api-client";
 
 import { NewsCard, type NewsCardItem } from "@/components/home/NewsCard";
+import { DEMO_EVENTS_FALLBACK } from "@/components/home/homeHelpers";
 
 function toCard(e: EventRecommendation): NewsCardItem {
   return {
     id: `evt-${e.id}`,
     title: e.title,
     category: e.category,
-    meta: `Événement · il y a peu`,
+    meta: `${e.date} · ${e.reason}`,
+    bgGradient: "from-yuni-terracotta-700 to-yuni-slate-900",
   };
 }
 
@@ -16,7 +18,7 @@ export function UpcomingEventsSection({
 }: {
   events: EventRecommendation[];
 }) {
-  const slice = events.slice(0, 3);
+  const slice = (events.length > 0 ? events : DEMO_EVENTS_FALLBACK).slice(0, 3);
   if (slice.length === 0) {
     return (
       <section aria-labelledby="upcoming-events-heading">
