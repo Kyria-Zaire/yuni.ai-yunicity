@@ -6,6 +6,8 @@ import { useYuniAIClient } from "@yuni/api-client/react";
 import { useAuth } from "@yuni/auth";
 import { VoiceButton, type VoiceState } from "@yuni/ui";
 
+import { useClientSessionId } from "@/hooks/useClientSessionId";
+
 type ChatBubble = { role: "user" | "assistant"; text: string };
 
 interface WsMessage {
@@ -34,7 +36,7 @@ function mapVoiceState(
 export function HeyYuniWeb({ city }: { city: string }) {
   const client = useYuniAIClient();
   const { getAccessToken } = useAuth();
-  const [sessionId] = useState(() => crypto.randomUUID());
+  const sessionId = useClientSessionId();
   const [voiceUi, setVoiceUi] = useState<
     "idle" | "recording" | "thinking" | "speaking"
   >("idle");
@@ -56,6 +58,9 @@ export function HeyYuniWeb({ city }: { city: string }) {
 
   const sendAudioBlob = useCallback(
     async (blob: Blob) => {
+      if (!sessionId) {
+        return;
+      }
       const token = getAccessToken();
       if (!token) {
         setMessages((m) => [

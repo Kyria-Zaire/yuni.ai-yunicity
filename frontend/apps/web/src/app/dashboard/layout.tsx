@@ -35,7 +35,8 @@ export default function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-yuni-wheat-50">
-      <aside className="fixed left-0 top-0 z-40 flex h-screen w-[240px] flex-col bg-yuni-slate-900 text-yuni-slate-100">
+      {/* top-16 = décalage sous le SiteHeader global (sticky ~64px) */}
+      <aside className="fixed left-0 top-16 z-30 flex h-[calc(100dvh-4rem)] w-[240px] flex-col bg-yuni-slate-900 text-yuni-slate-100">
         <div className="border-b border-yuni-slate-800 p-4">
           <p className="font-editorial text-lg text-white">Yuni AI</p>
           <p className="text-sm text-yuni-slate-400">{cityLabel}</p>

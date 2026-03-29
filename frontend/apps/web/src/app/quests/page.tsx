@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -26,6 +27,66 @@ const diffBorder: Record<QuestDifficulty, string> = {
   hard: "border-l-yuni-terracotta-500",
   epic: "border-l-yuni-slate-900",
 };
+
+const QUEST_PREVIEWS: {
+  id: string;
+  title: string;
+  difficulty: QuestDifficulty;
+  xp_reward: number;
+}[] = [
+  {
+    id: "preview-1",
+    title: "Découvrir le vieux Reims",
+    difficulty: "easy",
+    xp_reward: 20,
+  },
+  {
+    id: "preview-2",
+    title: "Circuit champagne",
+    difficulty: "medium",
+    xp_reward: 50,
+  },
+  {
+    id: "preview-3",
+    title: "Nuit blanche citoyenne",
+    difficulty: "hard",
+    xp_reward: 100,
+  },
+];
+
+function QuestPreviewCard({
+  title,
+  difficulty,
+  xp_reward,
+}: {
+  title: string;
+  difficulty: QuestDifficulty;
+  xp_reward: number;
+}) {
+  return (
+    <YuniCard
+      variant="elevated"
+      className={`border-l-[3px] opacity-60 ${diffBorder[difficulty]}`}
+      header={
+        <span
+          className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-body font-medium capitalize ${diffBadge[difficulty]}`}
+        >
+          {difficulty}
+        </span>
+      }
+      footer={
+        <span className="font-body font-bold text-yuni-terracotta-500">
+          ＋{xp_reward} XP
+        </span>
+      }
+    >
+      <p className="line-clamp-2 font-editorial text-lg font-semibold text-yuni-slate-900">
+        {title}
+      </p>
+      <p className="mt-2 text-xs text-yuni-slate-400">Aperçu — connecte-toi</p>
+    </YuniCard>
+  );
+}
 
 function QuestIllustration({ category }: { category: string }) {
   return (
@@ -86,8 +147,41 @@ export default function QuestsPage() {
     },
   });
 
+  if (!isAuthenticated) {
+    return (
+      <div className="mx-auto max-w-5xl px-4 py-16 text-center">
+        <p className="text-5xl" aria-hidden>
+          🗺️
+        </p>
+        <h2 className="mt-6 font-display text-3xl font-bold text-yuni-slate-900">
+          Des quêtes t&apos;attendent à Reims
+        </h2>
+        <p className="mx-auto mt-4 max-w-md text-yuni-slate-600">
+          Connecte-toi pour débloquer tes quêtes urbaines et gagner de l&apos;XP en
+          explorant ta ville.
+        </p>
+        <Link
+          href="/login"
+          className="mt-8 inline-block min-h-[44px] rounded-yuni-sm bg-yuni-terracotta-500 px-8 py-3 font-body font-semibold text-white transition-colors hover:bg-yuni-terracotta-700"
+        >
+          Rejoindre l&apos;aventure
+        </Link>
+        <div className="pointer-events-none mx-auto mt-10 grid max-w-3xl select-none grid-cols-1 gap-4 opacity-60 md:grid-cols-3">
+          {QUEST_PREVIEWS.map((q) => (
+            <QuestPreviewCard
+              key={q.id}
+              title={q.title}
+              difficulty={q.difficulty}
+              xp_reward={q.xp_reward}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8">
+    <div className="mx-auto max-w-5xl px-4 py-8">
       <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-editorial text-3xl text-yuni-slate-900">
@@ -99,9 +193,7 @@ export default function QuestsPage() {
         </div>
       </header>
 
-      {!isAuthenticated ? (
-        <p className="text-yuni-slate-600">Connecte-toi pour voir les quêtes.</p>
-      ) : quests.isError ? (
+      {quests.isError ? (
         <p className="rounded-yuni-md border border-yuni-wheat-100 bg-yuni-wheat-50/80 p-4 text-sm text-yuni-slate-500">
           {apiLoadErrorMessage(quests.error)}
         </p>
@@ -196,7 +288,7 @@ export default function QuestsPage() {
           busy={progress.isPending}
         />
       </section>
-    </main>
+    </div>
   );
 }
 

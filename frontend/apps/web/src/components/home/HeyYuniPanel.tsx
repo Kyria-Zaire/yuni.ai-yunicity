@@ -6,6 +6,8 @@ import { useState } from "react";
 import { useChatMutation } from "@yuni/api-client/react";
 import { useAuth } from "@yuni/auth";
 
+import { useClientSessionId } from "@/hooks/useClientSessionId";
+
 export type HeyYuniPanelMode = "public" | "citizen";
 
 export function HeyYuniPanel({
@@ -16,7 +18,7 @@ export function HeyYuniPanel({
   mode?: HeyYuniPanelMode;
 }) {
   const { user, isAuthenticated } = useAuth();
-  const [sessionId] = useState(() => crypto.randomUUID());
+  const sessionId = useClientSessionId();
   const [question, setQuestion] = useState("");
   const [lastResponse, setLastResponse] = useState<string | null>(null);
   const chat = useChatMutation();
@@ -29,7 +31,7 @@ export function HeyYuniPanel({
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     const msg = question.trim();
-    if (!isAuthenticated || !user?.hash || !msg) {
+    if (!sessionId || !isAuthenticated || !user?.hash || !msg) {
       return;
     }
     chat.mutate(
@@ -91,13 +93,18 @@ export function HeyYuniPanel({
               : "Écris ta question…"
           }
           className="min-h-[44px] flex-1 rounded-yuni-md border border-yuni-slate-200 px-3 py-2 text-sm font-body text-yuni-slate-900 focus:border-yuni-terracotta-500 focus:outline-none focus:ring-2 focus:ring-yuni-terracotta-500/30"
-          disabled={!isAuthenticated || chat.isPending}
+          disabled={!sessionId || !isAuthenticated || chat.isPending}
           autoComplete="off"
         />
         <button
           type="submit"
           className="min-h-[44px] min-w-[44px] rounded-yuni-md bg-yuni-slate-900 px-3 text-white transition-colors hover:bg-yuni-terracotta-700 disabled:opacity-50"
-          disabled={!isAuthenticated || chat.isPending || !question.trim()}
+          disabled={
+            !sessionId ||
+            !isAuthenticated ||
+            chat.isPending ||
+            !question.trim()
+          }
           aria-label="Envoyer la question"
         >
           →
