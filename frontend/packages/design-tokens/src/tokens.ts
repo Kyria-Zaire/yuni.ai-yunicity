@@ -39,8 +39,9 @@ export const colors = {
 } as const;
 
 export const typography = {
-  fontEditorial: "'Cormorant Garamond', Georgia, serif",
-  fontBody: "'Outfit', system-ui, sans-serif",
+  fontEditorial:
+    "'Gelasio', 'Cormorant Garamond', Georgia, serif",
+  fontBody: "'Outfit', 'Inter', system-ui, sans-serif",
   fontMono: "'JetBrains Mono', monospace",
   sizes: {
     xs: "0.75rem",
@@ -52,6 +53,25 @@ export const typography = {
     "3xl": "2rem",
     "4xl": "2.5rem",
   },
+} as const;
+
+/** Échelle et couleurs « média » (plateforme éditoriale). */
+export const editorial = {
+  fontDisplay: "'Gelasio', 'Cormorant Garamond', Georgia, serif",
+  fontBody: "'Outfit', 'Inter', system-ui, sans-serif",
+  fontMono: "'JetBrains Mono', monospace",
+  textXs: "0.875rem",
+  textSm: "1rem",
+  textBase: "1.125rem",
+  textLg: "1.5rem",
+  textXl: "2rem",
+  text2xl: "2.5rem",
+  text3xl: "3.5rem",
+  text4xl: "4.5rem",
+  breaking: "#DC2626",
+  indexPos: "#16A34A",
+  indexNeg: "#DC2626",
+  indexNeu: "#D97706",
 } as const;
 
 export const spacing = {
