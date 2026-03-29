@@ -120,6 +120,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error("Email et mot de passe requis");
     }
     const hash = await sha256Hex(email.trim().toLowerCase());
+    // Claims alignés sur `app/routers/dashboard.py` (`role` + `city`) et le middleware Next.
+    // Backend sans JWT_PUBLIC_KEY : `verify_jwt` renvoie les mêmes claims en dev (voir security.py).
     const payload = {
       sub: hash,
       exp: Math.floor(Date.now() / 1000) + 3600,

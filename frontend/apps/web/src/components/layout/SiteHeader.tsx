@@ -65,14 +65,23 @@ export function SiteHeader() {
       minute: "2-digit",
     });
 
+  const vitalityTone =
+    typeof score === "number"
+      ? score >= 60
+        ? "text-emerald-700"
+        : score >= 40
+          ? "text-amber-700"
+          : "text-yuni-terracotta-700"
+      : "";
+
   const vitalityLabel =
     isAuthenticated && typeof score === "number" ? (
-      <span className="text-green-600">
+      <span className={vitalityTone}>
         ● {Math.round(score)}{" "}
         {score >= 60 ? "Positif" : score >= 40 ? "Neutre" : "À surveiller"}
       </span>
     ) : (
-      <span className="text-yuni-slate-500">● —</span>
+      <span className="text-yuni-slate-600">● —</span>
     );
 
   return (
@@ -151,7 +160,7 @@ export function SiteHeader() {
               className={`rounded-yuni-sm px-3 py-2 ${
                 isActivePath(pathname, "/admin")
                   ? activeNav
-                  : "text-yuni-slate-500 transition-colors hover:text-yuni-terracotta-600"
+                  : "text-yuni-slate-700 transition-colors hover:text-yuni-terracotta-600"
               }`}
             >
               Admin

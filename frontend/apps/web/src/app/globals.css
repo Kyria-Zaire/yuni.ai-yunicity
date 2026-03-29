@@ -32,7 +32,8 @@
   /* === TEXTE === */
   --text-primary: #111111;
   --text-secondary: #444444;
-  --text-muted: #666666;
+  /* ~slate-600 sur blanc — ratio de contraste AA */
+  --text-muted: #475569;
   --text-disabled: #999999;
   --text-inverse: #ffffff;
   --text-accent: var(--color-terracotta-500);
